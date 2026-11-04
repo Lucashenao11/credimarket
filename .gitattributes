@@ -1,3 +1,6 @@
 # Los scripts de shell deben tener finales de línea LF aunque se clone en Windows;
 # si no, el contenedor de PostgreSQL no puede ejecutar el script de inicialización.
 *.sh text eol=lf
+
+# Los CSV no se modifican: su hash SHA-256 identifica la versi�n del dataset.
+*.csv -text

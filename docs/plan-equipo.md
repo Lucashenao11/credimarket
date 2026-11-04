@@ -5,7 +5,7 @@ Documento de coordinación entre los dos integrantes. Léelo completo antes de e
 ## 1. Contexto
 
 - **Entrega:** lunes 9 de noviembre de 2026, 11:59 p. m. Repositorio Git + demostración en vivo.
-- **Integrantes:** Lucas y [Compañero]. El enunciado exige que **cualquiera de los dos pueda explicar cualquier parte** del sistema; la nota individual puede bajar si no. Por eso, antes del lunes cada uno le explica al otro su parte (ver sección 8).
+- **Integrantes:** Lucas y Juan. El enunciado exige que **cualquiera de los dos pueda explicar cualquier parte** del sistema; la nota individual puede bajar si no. Por eso, antes del lunes cada uno le explica al otro su parte (ver sección 8).
 - **Decisiones ya tomadas:** D1 a D8 en `docs/decisiones.md` (RabbitMQ, FastAPI síncrono, una instancia de PostgreSQL con 4 bases aisladas, Angular, JWT RS256, tiempos de espera, promoción con `active.json`, secretos generados por script). No se cambian sin acordarlo entre los dos.
 
 ## 2. Reglas no negociables
@@ -23,7 +23,7 @@ Cualquiera de estas convierte un criterio en 0 % o lo topa:
 
 | Integrante | Alcance | Criterios de la rúbrica |
 |---|---|---|
-| **[Compañero]** | Servicio **Productos** + **Redis** (cache-aside, mediciones, informe); **ML completo** (etapas A a F, MLflow, exportación, manifiesto, promoción y rollback); pantallas de **Catálogo** y **Modelo (admin)** del frontend | 3 (10 %), 4 (15 %), 5 (15 %) + parte del 7 |
+| **Juan** | Servicio **Productos** + **Redis** (cache-aside, mediciones, informe); **ML completo** (etapas A a F, MLflow, exportación, manifiesto, promoción y rollback); pantallas de **Catálogo** y **Modelo (admin)** del frontend | 3 (10 %), 4 (15 %), 5 (15 %) + parte del 7 |
 | **Lucas** | Servicios **Clientes** (importación CSV, emisión de tokens), **Préstamos** (flujo, máquina de estados, carga y uso del modelo, endpoints de la API del modelo), **Inventario** (reserva atómica); **RabbitMQ**, outbox y consumidores idempotentes; esqueleto del frontend y las demás pantallas; documentación general | 1 (15 %), 2 (15 %), 6 (15 %), 8 (5 %) + resto del 7 |
 
 Los dos frentes se tocan solo en los **tres contratos** de la sección 4. Mientras se respeten, nadie bloquea a nadie.
@@ -130,7 +130,7 @@ cuota = monto × i / (1 − (1 + i)^(−n)),   con i = 0.018 y n = plazo_meses
 - **Salida:** `pipeline.predict_proba(df)[:, 1]` es la probabilidad de incumplimiento. La decisión de riesgo se toma comparándola con el `umbral` del manifiesto.
 - **Versiones fijas:** las mismas de `ml/requirements.txt` deben ir en `services/prestamos/requirements.txt`. Usa `scikit-learn==1.5.2`, `pandas==2.2.3`, `numpy==2.1.3`, `joblib==1.4.2`.
 
-## 5. Alcance detallado de [Compañero]
+## 5. Alcance detallado de Juan
 
 ### 5.1 Servicio Productos (carpeta `services/productos`)
 
@@ -191,7 +191,7 @@ Si PowerShell bloquea los scripts: `Get-ChildItem -Recurse .\scripts -Filter *.p
 
 ## 8. Calendario e hitos de integración
 
-| Fecha | [Compañero] | Lucas | Hito conjunto |
+| Fecha | Juan | Lucas | Hito conjunto |
 |---|---|---|---|
 | Mié 4 | Clonar y levantar el entorno; etapa A del ML | Cierre del Día 1; Clientes | — |
 | Jue 5 | Productos con CRUD y cache-aside | Clientes con CSV y emisión de tokens (Lucas sustenta otra materia a las 2 p. m.) | **Noche:** el contrato de cotización (4.2) responde |
@@ -204,5 +204,5 @@ Si alguien se atrasa, avisa el mismo día. Lo primero que se recorta es lo opcio
 
 ## 9. Pendiente
 
-- [ ] Nombre y usuario de GitHub de [Compañero] (para el README y la invitación al repositorio).
+- [ ] Nombre y usuario de GitHub de Juan (para el README y la invitación al repositorio).
 - [ ] Correo al profesor registrando el grupo de dos integrantes.
