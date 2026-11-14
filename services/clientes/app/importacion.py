@@ -37,7 +37,14 @@ def insertar_si_no_existe(db: Session, datos: ClienteCreate) -> str:
     Pregunta antes de escribir: ¿por qué NO conviene hacer primero un SELECT para preguntar
     si el cliente_id existe, y después el INSERT? (Recuerda el nickname y "beto").
     """
-    raise NotImplementedError("TODO(Lucas): implementa insertar_si_no_existe")
+    nuevo_cliente = Cliente(**datos.model_dump())
+    db.add(nuevo_cliente)
+    try:
+        db.commit()
+        return "insertado"
+    except IntegrityError:
+        db.rollback()
+        return "ya_existia"
 
 
 def _limpiar(fila: dict[str, str]) -> dict[str, str | None]:
