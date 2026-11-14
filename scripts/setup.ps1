@@ -12,7 +12,17 @@ function Nueva-Clave {
 }
 
 if (Test-Path ".env") {
-    Write-Host ".env ya existe; no se modifica."
+    # Agrega solo las variables nuevas de .env.example que aún no estén en .env
+    $existentes = Get-Content ".env" | ForEach-Object { if ($_ -match "^([A-Z_]+)=") { $Matches[1] } }
+    $nuevas = Get-Content ".env.example" | Where-Object { $_ -match "^([A-Z_]+)=(.*)$" -and ($existentes -notcontains $Matches[1]) } | ForEach-Object {
+        if ($_ -match "^([A-Z_]+)=cambiar$") { "$($Matches[1])=$(Nueva-Clave)" } else { $_ }
+    }
+    if ($nuevas) {
+        [System.IO.File]::AppendAllLines("$raiz\.env", [string[]]$nuevas)
+        Write-Host ".env existente: se agregaron $(@($nuevas).Count) variables nuevas."
+    } else {
+        Write-Host ".env ya existe y está completo; no se modifica."
+    }
 } else {
     $contenido = Get-Content ".env.example" | ForEach-Object {
         if ($_ -match "^([A-Z_]+)=cambiar$") { "$($Matches[1])=$(Nueva-Clave)" } else { $_ }

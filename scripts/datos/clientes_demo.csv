@@ -1,0 +1,9 @@
+cliente_id,ingresos_mensuales_cop,obligaciones_mensuales_cop,tipo_empleo,antiguedad_laboral_meses,meses_historial_crediticio,creditos_previos,atrasos_previos_30d,porcentaje_pago_puntual
+CLI-0012001,2032000,341000,independiente,11.0000,88.0000,4,1,65.7800
+CLI-0012002,1878000,264000,dependiente,13.0000,89.0000,1,0,90.1800
+CLI-0012003,3755000,893000,independiente,22.0000,97.0000,9,8,67.4500
+CLI-0012004,2787000,150000,independiente,69.0000,62.0000,1,1,71.4200
+CLI-0012005,3337000,477000,independiente,51.0000,115.0000,3,1,72.1500
+CLI-0012006,-100000,1228000,independiente,51.0000,9.0000,0,0,
+CLI-0012007,4342000,721000,pensionado,25.0000,94.0000,2,1,54.4200
+cliente-sin-formato,3651000,446000,dependiente,7.0000,55.0000,3,2,66.2700

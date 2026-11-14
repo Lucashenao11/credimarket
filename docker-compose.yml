@@ -113,6 +113,9 @@ services:
       JWT_PRIVATE_KEY_PATH: /run/secrets/jwt_private.pem
       JWT_PUBLIC_KEY_PATH: /run/secrets/jwt_public.pem
       DEMO_TOKENS_ENABLED: ${DEMO_TOKENS_ENABLED}
+      DEMO_ADMIN_PASSWORD: ${DEMO_ADMIN_PASSWORD}
+      DEMO_CLIENTE_PASSWORD: ${DEMO_CLIENTE_PASSWORD}
+      JWT_TTL_MINUTES: ${JWT_TTL_MINUTES}
       CORS_ORIGINS: ${CORS_ORIGINS}
     volumes:
       - ./secrets/jwt_private.pem:/run/secrets/jwt_private.pem:ro

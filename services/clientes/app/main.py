@@ -1,10 +1,23 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import settings
-from .db import db_disponible
+from .db import Base, SessionLocal, db_disponible, engine
+from .routers import auth, clientes
+from .seed import sembrar_demo
 
-app = FastAPI(title=f"CrediMarket - {settings.service_name}")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    Base.metadata.create_all(engine)  # crea las tablas si no existen
+    with SessionLocal() as db:
+        sembrar_demo(db)
+    yield
+
+
+app = FastAPI(title="CrediMarket - clientes", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -14,10 +27,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth.router)
+app.include_router(clientes.router)
+
 
 @app.get("/health")
 def health():
-    """El proceso responde. Informa, sin fallar, si la base de datos es alcanzable."""
     return {
         "status": "ok",
         "service": settings.service_name,
