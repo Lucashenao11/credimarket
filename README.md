@@ -56,3 +56,4 @@ Se crean al arrancar si `DEMO_TOKENS_ENABLED=true`. Las contraseñas están en t
 - [Decisiones de arquitectura](docs/decisiones.md)
 - [Plan de equipo](docs/plan-equipo.md)
 - [Guía de lectura: Clientes](docs/guias/clientes.md)
+- [Guía de lectura: Inventario](docs/guias/inventario.md)

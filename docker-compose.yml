@@ -149,6 +149,8 @@ services:
       DATABASE_URL: postgresql+psycopg://inventario:${INVENTARIO_DB_PASSWORD}@postgres:5432/inventario
       RABBITMQ_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672/
       JWT_PUBLIC_KEY_PATH: /run/secrets/jwt_public.pem
+      RESERVA_TTL_SEGUNDOS: ${RESERVA_TTL_SEGUNDOS}
+      DEMO_DATOS: ${DEMO_TOKENS_ENABLED}
       CORS_ORIGINS: ${CORS_ORIGINS}
     volumes:
       - ./secrets/jwt_public.pem:/run/secrets/jwt_public.pem:ro
