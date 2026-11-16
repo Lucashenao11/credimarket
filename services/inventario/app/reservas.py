@@ -3,6 +3,7 @@
 Estas funciones no saben si las llama un endpoint HTTP o el consumidor de RabbitMQ:
 el martes, el consumidor llamará a estas mismas funciones.
 """
+
 from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import select, update  # noqa: F401  (update lo vas a necesitar)
@@ -21,6 +22,7 @@ def ahora_utc() -> datetime:
 # ---------------------------------------------------------------------------
 # Entradas (registro de unidades nuevas en bodega)
 # ---------------------------------------------------------------------------
+
 
 def registrar_entrada(db: Session, producto_id: int, cantidad: int) -> Existencia:
     if cantidad <= 0:
@@ -42,6 +44,7 @@ def registrar_entrada(db: Session, producto_id: int, cantidad: int) -> Existenci
 # ---------------------------------------------------------------------------
 # Reservar  —  pieza crítica (pruebas de aceptación 3, 4 y 5)
 # ---------------------------------------------------------------------------
+
 
 def reservar(db: Session, prestamo_id: str, producto_id: int, cantidad: int) -> str:
     """Aparta unidades para un préstamo. Devuelve "RESERVADA", "INSUFICIENTE" o "YA_PROCESADA".
@@ -71,16 +74,59 @@ def reservar(db: Session, prestamo_id: str, producto_id: int, cantidad: int) -> 
       - Si la Reserva repite el prestamo_id, db.commit() lanza IntegrityError (UNIQUE).
         Ojo: el rollback deshace TODO lo de esta transacción, incluido el UPDATE de existencias.
     """
-    vence_en = ahora_utc() + timedelta(seconds=settings.reserva_ttl_segundos)  # noqa: F841
-    raise NotImplementedError("TODO(Lucas): implementa reservar")
+    vence_en = ahora_utc() + timedelta(
+        seconds=settings.reserva_ttl_segundos
+    )  # noqa: F841
 
+    resultado = db.execute(
+        update(Existencia)
+        .where(Existencia.producto_id == producto_id, Existencia.disponible >= cantidad)
+        .values(
+            disponible=Existencia.disponible - cantidad,
+            reservado=Existencia.reservado + cantidad,
+        )
+    )
+
+    if resultado.rowcount == 0:
+        db.rollback()
+        return "INSUFICIENTE"
+
+    db.add(
+        Reserva(
+            prestamo_id=prestamo_id,
+            producto_id=producto_id,
+            cantidad=cantidad,
+            estado="ACTIVA",
+            vence_en=vence_en,
+        )
+    )
+    db.add(
+        Movimiento(
+            producto_id=producto_id,
+            tipo="RESERVA",
+            cantidad=cantidad,
+            prestamo_id=prestamo_id
+        )
+    )
+
+    try:
+        db.commit()
+        return "RESERVADA"
+    except IntegrityError:
+        db.rollback()
+        return "YA_PROCESADA"
 
 # ---------------------------------------------------------------------------
 # Liberar  —  pieza crítica (prueba de aceptación 7)
 # ---------------------------------------------------------------------------
 
-def liberar(db: Session, prestamo_id: str, estado_final: str = "LIBERADA",
-            motivo: str | None = None) -> str:
+
+def liberar(
+    db: Session,
+    prestamo_id: str,
+    estado_final: str = "LIBERADA",
+    motivo: str | None = None,
+) -> str:
     """Devuelve a `disponible` las unidades de una reserva ACTIVA.
 
     Devuelve "LIBERADA" (o el estado_final que se pida), "NO_EXISTE" o "YA_FINALIZADA".
@@ -108,6 +154,7 @@ def liberar(db: Session, prestamo_id: str, estado_final: str = "LIBERADA",
 # Confirmar salida (entrega simulada)
 # ---------------------------------------------------------------------------
 
+
 def confirmar_salida(db: Session, prestamo_id: str) -> str:
     """Las unidades reservadas salen de la bodega. Devuelve "CONFIRMADA", "NO_EXISTE" o "YA_FINALIZADA"."""
     reserva = db.scalar(select(Reserva).where(Reserva.prestamo_id == prestamo_id))
@@ -127,8 +174,14 @@ def confirmar_salida(db: Session, prestamo_id: str) -> str:
         .where(Existencia.producto_id == reserva.producto_id)
         .values(reservado=Existencia.reservado - reserva.cantidad)
     )
-    db.add(Movimiento(producto_id=reserva.producto_id, tipo="SALIDA",
-                      cantidad=reserva.cantidad, prestamo_id=prestamo_id))
+    db.add(
+        Movimiento(
+            producto_id=reserva.producto_id,
+            tipo="SALIDA",
+            cantidad=reserva.cantidad,
+            prestamo_id=prestamo_id,
+        )
+    )
     db.commit()
     return "CONFIRMADA"
 
@@ -137,6 +190,7 @@ def confirmar_salida(db: Session, prestamo_id: str) -> str:
 # Vencimiento de reservas (lo ejecuta un hilo cada pocos segundos)
 # ---------------------------------------------------------------------------
 
+
 def vencer_reservas(db: Session, ahora: datetime | None = None) -> list[str]:
     """Libera las reservas ACTIVAS cuyo vence_en ya pasó. Devuelve los prestamo_id vencidos.
 
@@ -144,11 +198,16 @@ def vencer_reservas(db: Session, ahora: datetime | None = None) -> list[str]:
     """
     ahora = ahora or ahora_utc()
     candidatos = db.scalars(
-        select(Reserva.prestamo_id).where(Reserva.estado == "ACTIVA", Reserva.vence_en < ahora)
+        select(Reserva.prestamo_id).where(
+            Reserva.estado == "ACTIVA", Reserva.vence_en < ahora
+        )
     ).all()
     vencidas = []
     for prestamo_id in candidatos:
         # Reutiliza liberar: si justo antes alguien la confirmó o liberó, devuelve YA_FINALIZADA
-        if liberar(db, prestamo_id, estado_final="VENCIDA", motivo="RESERVA_VENCIDA") == "VENCIDA":
+        if (
+            liberar(db, prestamo_id, estado_final="VENCIDA", motivo="RESERVA_VENCIDA")
+            == "VENCIDA"
+        ):
             vencidas.append(prestamo_id)
     return vencidas
