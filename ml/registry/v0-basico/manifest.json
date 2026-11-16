@@ -1,0 +1,66 @@
+{
+  "model_version": "v0-basico",
+  "run_id": null,
+  "dataset_version": "prestamos_entrenamiento.csv",
+  "dataset_sha256": "c6cdc437c3aecc9116bc8b978df421d5a7600634c1ad7d6f82e58222a2446ecd",
+  "features": [
+    {
+      "nombre": "ingresos_mensuales_cop",
+      "tipo": "float"
+    },
+    {
+      "nombre": "obligaciones_mensuales_cop",
+      "tipo": "float"
+    },
+    {
+      "nombre": "tipo_empleo",
+      "tipo": "str"
+    },
+    {
+      "nombre": "antiguedad_laboral_meses",
+      "tipo": "float"
+    },
+    {
+      "nombre": "meses_historial_crediticio",
+      "tipo": "float"
+    },
+    {
+      "nombre": "creditos_previos",
+      "tipo": "int"
+    },
+    {
+      "nombre": "atrasos_previos_30d",
+      "tipo": "int"
+    },
+    {
+      "nombre": "porcentaje_pago_puntual",
+      "tipo": "float"
+    },
+    {
+      "nombre": "monto_solicitado_cop",
+      "tipo": "float"
+    },
+    {
+      "nombre": "plazo_meses",
+      "tipo": "int"
+    },
+    {
+      "nombre": "cuota_estimada_cop",
+      "tipo": "float"
+    }
+  ],
+  "clase_positiva": 1,
+  "umbral": 0.5,
+  "metricas": {
+    "prueba_roc_auc": 0.6894,
+    "prueba_pr_auc": 0.509
+  },
+  "dependencias": {
+    "scikit-learn": "1.5.2",
+    "pandas": "2.2.3",
+    "numpy": "2.1.3",
+    "joblib": "1.4.2"
+  },
+  "artefacto_sha256": "54891dda9123ddb6b5d771bff89f7a3b21dc0acdbf474f3c27be7cba44dbb449",
+  "nota": "Modelo base provisional, sin MLflow. Reemplazar por la versión real (etapas A-F)."
+}
