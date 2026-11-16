@@ -105,7 +105,7 @@ def reservar(db: Session, prestamo_id: str, producto_id: int, cantidad: int) -> 
             producto_id=producto_id,
             tipo="RESERVA",
             cantidad=cantidad,
-            prestamo_id=prestamo_id
+            prestamo_id=prestamo_id,
         )
     )
 
@@ -115,6 +115,7 @@ def reservar(db: Session, prestamo_id: str, producto_id: int, cantidad: int) -> 
     except IntegrityError:
         db.rollback()
         return "YA_PROCESADA"
+
 
 # ---------------------------------------------------------------------------
 # Liberar  —  pieza crítica (prueba de aceptación 7)
@@ -147,7 +148,44 @@ def liberar(
     estado de la reserva: un UPDATE de reservas que solo cambia la fila si estado == "ACTIVA".
     Para obtener la reserva: db.scalar(select(Reserva).where(Reserva.prestamo_id == prestamo_id))
     """
-    raise NotImplementedError("TODO(Lucas): implementa liberar")
+
+    reserva = db.scalar(select(Reserva).where(Reserva.prestamo_id == prestamo_id))
+
+    if reserva is None:
+        return "NO_EXISTE"
+
+    cambio = db.execute(
+        update(Reserva)
+        .where(Reserva.id == reserva.id, Reserva.estado == "ACTIVA")
+        .values(estado=estado_final, motivo=motivo)
+    )
+
+    if cambio.rowcount == 0:
+        db.rollback()
+        return "YA_FINALIZADA"
+
+    db.execute(
+        update(Existencia)
+        .where(Existencia.producto_id == reserva.producto_id)
+        .values(
+            disponible=Existencia.disponible + reserva.cantidad,
+            reservado=Existencia.reservado - reserva.cantidad,
+        )
+    )
+
+    tipo = "VENCIMIENTO" if estado_final == "VENCIDA" else "LIBERACION"
+
+    db.add(
+        Movimiento(
+            producto_id=reserva.producto_id,
+            tipo=tipo,
+            cantidad=reserva.cantidad,
+            prestamo_id=reserva.prestamo_id,
+        )
+    )
+    
+    db.commit()
+    return estado_final
 
 
 # ---------------------------------------------------------------------------
