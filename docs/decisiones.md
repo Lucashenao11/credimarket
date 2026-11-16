@@ -88,3 +88,16 @@ Formato: decisión, alternativas consideradas, por qué, qué se sacrifica.
 **Por qué:** es simple de explicar y de mantener; el contenedor de arranque costaba 2–3 horas más y obligaba a configurar PostgreSQL y RabbitMQ para leer contraseñas desde archivos.
 
 **Qué se sacrifica:** levantar el sistema requiere un comando adicional antes de `docker compose up`.
+
+## D9 — Préstamos: llamadas entre servicios, idempotencia y estados
+
+**Decisión:**
+- Préstamos reenvía el token del cliente a Clientes y Productos (no hay tokens de servicio); la cotización la puede consultar cualquier usuario autenticado. El `cliente_id` sale siempre del token, nunca del cuerpo.
+- `Idempotency-Key` es obligatorio. Se guarda con la pareja `(cliente_id, clave)` bajo restricción UNIQUE y el SHA-256 del cuerpo canónico. Misma pareja y mismo hash devuelve la misma solicitud; mismo par con otro hash da 409.
+- Cada cambio de estado es un UPDATE condicional (`WHERE estado = esperado`) más una fila de historial, validado contra la tabla de transiciones. Un evento tardío nunca reactiva un préstamo cancelado: se responde con LiberarReserva.
+
+**Alternativas:** clave única global; comparar el cuerpo campo por campo; cambiar estado leyendo y luego escribiendo.
+
+**Por qué:** la pareja evita que un cliente se entere de las claves de otro; el hash evita guardar y comparar todo el cuerpo; el UPDATE condicional resiste dos mensajes simultáneos.
+
+**Qué se sacrifica:** una solicitud repetida con la misma clave devuelve 200 y no el 202 original.
