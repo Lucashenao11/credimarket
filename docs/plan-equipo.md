@@ -5,7 +5,7 @@ Documento de coordinación entre los dos integrantes. Léelo completo antes de e
 ## 1. Contexto
 
 - **Entrega:** lunes 9 de noviembre de 2026, 11:59 p. m. Repositorio Git + demostración en vivo.
-- **Integrantes:** Lucas y Juan. El enunciado exige que **cualquiera de los dos pueda explicar cualquier parte** del sistema; la nota individual puede bajar si no. Por eso, antes del lunes cada uno le explica al otro su parte (ver sección 8).
+- **Integrantes:** Lucas y Juan David. El enunciado exige que **cualquiera de los dos pueda explicar cualquier parte** del sistema; la nota individual puede bajar si no. Por eso, antes del lunes cada uno le explica al otro su parte (ver sección 8).
 - **Decisiones ya tomadas:** D1 a D8 en `docs/decisiones.md` (RabbitMQ, FastAPI síncrono, una instancia de PostgreSQL con 4 bases aisladas, Angular, JWT RS256, tiempos de espera, promoción con `active.json`, secretos generados por script). No se cambian sin acordarlo entre los dos.
 
 ## 2. Reglas no negociables
@@ -23,7 +23,7 @@ Cualquiera de estas convierte un criterio en 0 % o lo topa:
 
 | Integrante | Alcance | Criterios de la rúbrica |
 |---|---|---|
-| **Juan** | Servicio **Productos** + **Redis** (cache-aside, mediciones, informe); **ML completo** (etapas A a F, MLflow, exportación, manifiesto, promoción y rollback); pantallas de **Catálogo** y **Modelo (admin)** del frontend | 3 (10 %), 4 (15 %), 5 (15 %) + parte del 7 |
+| **Juan David** | Servicio **Productos** + **Redis** (cache-aside, mediciones, informe); **ML completo** (etapas A a F, MLflow, exportación, manifiesto, promoción y rollback); pantallas de **Catálogo** y **Modelo (admin)** del frontend | 3 (10 %), 4 (15 %), 5 (15 %) + parte del 7 |
 | **Lucas** | Servicios **Clientes** (importación CSV, emisión de tokens), **Préstamos** (flujo, máquina de estados, carga y uso del modelo, endpoints de la API del modelo), **Inventario** (reserva atómica); **RabbitMQ**, outbox y consumidores idempotentes; esqueleto del frontend y las demás pantallas; documentación general | 1 (15 %), 2 (15 %), 6 (15 %), 8 (5 %) + resto del 7 |
 
 Los dos frentes se tocan solo en los **tres contratos** de la sección 4. Mientras se respeten, nadie bloquea a nadie.
@@ -130,7 +130,7 @@ cuota = monto × i / (1 − (1 + i)^(−n)),   con i = 0.018 y n = plazo_meses
 - **Salida:** `pipeline.predict_proba(df)[:, 1]` es la probabilidad de incumplimiento. La decisión de riesgo se toma comparándola con el `umbral` del manifiesto.
 - **Versiones fijas:** las mismas de `ml/requirements.txt` deben ir en `services/prestamos/requirements.txt`. Usa `scikit-learn==1.5.2`, `pandas==2.2.3`, `numpy==2.1.3`, `joblib==1.4.2`.
 
-## 5. Alcance detallado de Juan
+## 5. Alcance detallado de Juan David
 
 ### 5.1 Servicio Productos (carpeta `services/productos`)
 
@@ -189,20 +189,23 @@ docker compose up --build -d
 
 Si PowerShell bloquea los scripts: `Get-ChildItem -Recurse .\scripts -Filter *.ps1 | Unblock-File`.
 
-## 8. Calendario e hitos de integración
+## 8. Calendario e hitos de integración (actualizado: entrega el viernes 20 de noviembre)
 
-| Fecha | Juan | Lucas | Hito conjunto |
+| Fecha | Juan David | Lucas | Hito conjunto |
 |---|---|---|---|
-| Mié 4 | Clonar y levantar el entorno; etapa A del ML | Cierre del Día 1; Clientes | — |
-| Jue 5 | Productos con CRUD y cache-aside | Clientes con CSV y emisión de tokens (Lucas sustenta otra materia a las 2 p. m.) | **Noche:** el contrato de cotización (4.2) responde |
-| Vie 6 | Etapas B y C en MLflow | Inventario y Préstamos, broker y outbox; esqueleto del frontend al mediodía | — |
-| Sáb 7 | Etapa D: v1 exportada y promovida | Préstamos carga el modelo; endpoints de la API del modelo | **Tarde:** prueba 10 (pipeline vs. API) |
-| Dom 8 | v2, promoción y rollback; etapa F; evidencia e informe de Redis; pantallas de catálogo y modelo | Frontend restante, autenticación por rol, pruebas de aceptación | **Noche:** flujo completo desde el navegador |
-| Lun 9 | Documentación de su frente | README, diagramas, guía de demostración | **Mañana:** prueba desde clon limpio. **Tarde:** cada uno explica la parte del otro (simulacro cruzado). **11:59 p. m.:** entrega |
+| Sáb 14 | Clonar y levantar el entorno; Productos: modelo, CRUD y datos iniciales | Clientes: CRUD, importación CSV idempotente, emisión de tokens | — |
+| Dom 15 | Productos: cache-aside con Redis y endpoint de cotización (4.2); ML etapa A | Inventario: reserva atómica, liberación, confirmación, movimientos y vencimiento | **Noche (control 1):** la cotización responde con precio y versión |
+| Lun 16 | ML etapas B y C: baseline + 3 algoritmos + 6 ejecuciones en MLflow | Préstamos: POST con Idempotency-Key, máquina de estados, llamadas a Clientes y Productos | — |
+| Mar 17 | ML etapa D: v1 exportada con manifiesto y promovida; umbral con costos | RabbitMQ: outbox, publicador, consumidores idempotentes, mensajes muertos; pruebas 1, 3, 4, 5, 6 y 7 | **Noche (control 2):** v1 en `ml/registry/` y `active.json` |
+| Mié 18 | v2, promoción y rollback; etapa F (drift); script e informe de Redis | Préstamos carga el modelo y expone la API del modelo; esqueleto del frontend (**adelantado: ya está en el repositorio**) | **Tarde:** prueba 10 (pipeline vs. API) |
+| Jue 19 | Pantallas de Catálogo y Modelo; reporte de selección | Pantallas restantes, autenticación por rol, pruebas 13 a 16 | **Noche:** flujo completo desde el navegador |
+| Vie 20 | Documentación de su frente | README, diagramas, guía de demostración | **Mañana:** prueba desde clon limpio. **Tarde:** simulacro cruzado (cada uno explica la parte del otro). **Entrega** |
+
+**Puntos de control.** Si el control 1 (domingo) no se cumple, Lucas asume Productos y Redis, y el compañero se concentra solo en ML. Si el control 2 (martes) no se cumple, se replantea el ML entre los dos para no perder los criterios 4 y 5 (30 % de la nota).
 
 Si alguien se atrasa, avisa el mismo día. Lo primero que se recorta es lo opcional; nunca el flujo de las pruebas de aceptación.
 
 ## 9. Pendiente
 
-- [ ] Nombre y usuario de GitHub de Juan (para el README y la invitación al repositorio).
+- [x] Compañero: Juan David Sepúlveda Londoño (GitHub: Huanda98GG).
 - [ ] Correo al profesor registrando el grupo de dos integrantes.

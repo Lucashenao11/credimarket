@@ -158,6 +158,18 @@ services:
     ports:
       - "8004:8000"
 
+  # ---------- Frontend (Angular servido por nginx) ----------
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    depends_on:
+      - clientes
+      - productos
+      - prestamos
+      - inventario
+    ports:
+      - "4200:80"
+
 volumes:
   postgres_data:
   rabbitmq_data:

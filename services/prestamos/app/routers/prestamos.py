@@ -8,7 +8,7 @@ from ..db import get_db
 from ..idempotencia import ConflictoIdempotencia
 from ..integraciones import Integraciones, get_integraciones
 from ..models import HistorialEstado, Prestamo
-from ..schemas import EventoPrueba, HistorialOut, PrestamoOut, SolicitudIn
+from ..schemas import HistorialOut, PrestamoOut, SolicitudIn
 from ..security import _bearer, requiere_rol, usuario_actual
 
 router = APIRouter(tags=["prestamos"])
@@ -92,9 +92,3 @@ def entregar(prestamo_id: str, db: Session = Depends(get_db)):
     if eventos.solicitar_entrega(db, prestamo_id) != "ENTREGA_SOLICITADA":
         raise HTTPException(status.HTTP_409_CONFLICT, "Solo un préstamo APROBADO se puede entregar")
     return {"resultado": "ENTREGA_SOLICITADA"}
-
-
-@router.post("/pruebas/prestamos/{prestamo_id}/eventos", dependencies=[Depends(requiere_rol("admin"))])
-def simular_evento(prestamo_id: str, e: EventoPrueba, db: Session = Depends(get_db)):
-    """TEMPORAL: simula lo que Inventario responderá por RabbitMQ. Se elimina el martes."""
-    return {"resultado": eventos.MANEJADORES[e.evento](db, prestamo_id)}

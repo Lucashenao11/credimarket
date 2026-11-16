@@ -53,11 +53,3 @@ def test_entrega(db):
     p = nuevo_prestamo(db, "APROBADA")
     assert eventos.salida_confirmada(db, p.id) == "COMPLETADA"
     assert eventos.salida_confirmada(db, p.id) == "IGNORADO"
-
-
-def test_endpoint_de_prueba(client, db):
-    from tests.conftest import USUARIO
-    p = nuevo_prestamo(db)
-    USUARIO["rol"] = "admin"
-    r = client.post(f"/pruebas/prestamos/{p.id}/eventos", json={"evento": "InventarioReservado"})
-    assert r.json() == {"resultado": "APROBADA"}

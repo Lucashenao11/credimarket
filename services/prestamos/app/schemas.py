@@ -43,11 +43,6 @@ class HistorialOut(BaseModel):
     en: datetime
 
 
-class EventoPrueba(BaseModel):
-    evento: Literal["InventarioReservado", "InventarioInsuficiente", "ReservaVencida",
-                    "TimeoutInventario", "SalidaConfirmada"]
-
-
 class RiesgoIn(BaseModel):
     ingresos_mensuales_cop: float
     obligaciones_mensuales_cop: float

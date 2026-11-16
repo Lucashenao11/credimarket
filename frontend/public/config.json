@@ -1,0 +1,8 @@
+{
+  "clientes": "http://localhost:8002",
+  "productos": "http://localhost:8001",
+  "prestamos": "http://localhost:8003",
+  "inventario": "http://localhost:8004",
+  "mlflow": "http://localhost:5000",
+  "rabbitmq": "http://localhost:15672"
+}

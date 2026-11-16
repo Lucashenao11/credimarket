@@ -27,7 +27,7 @@ Las mismas ideas que ya conoces, ahora en Python:
 | 4 | `app/reservas.py`, `confirmar_salida` | Es el **modelo** para tu `liberar`: un `UPDATE` de la reserva que solo cambia la fila si `estado == "ACTIVA"`, y `rowcount` para saber si lo logró |
 | 5 | `app/reservas.py`, `vencer_reservas` | ¿Qué función tuya reutiliza? ¿Qué pasa si una reserva se confirma justo antes de vencer? |
 | 6 | `app/vencimiento.py` y `app/main.py` | ¿Cada cuánto se revisan las reservas vencidas, y dónde se inicia ese hilo? |
-| 7 | `app/routers/inventario.py` | ¿Por qué todo el router exige rol `admin`? ¿Por qué los endpoints `/pruebas/...` son temporales? |
+| 7 | `app/routers/inventario.py` | ¿Por qué todo el router exige rol `admin`? ¿Por qué ya no existen los endpoints `/pruebas`? |
 
 ## 3. Tus piezas
 

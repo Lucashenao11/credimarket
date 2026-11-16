@@ -1,4 +1,4 @@
-﻿# Demostración de Préstamos (sin broker): solicitud, idempotencia, rechazo, estados y evento tardío.
+﻿# Demostración de la API de Préstamos: solicitud, idempotencia HTTP (200 / 409), aislamiento entre clientes e historial.
 # Uso: .\scripts\demo-prestamos.ps1   (con docker compose up corriendo: clientes, productos, prestamos)
 $ErrorActionPreference = "Stop"
 $raiz = Split-Path -Parent $PSScriptRoot
@@ -62,22 +62,9 @@ Write-Host "`n== 5. Ana intenta ver el préstamo de Beto ==" -ForegroundColor Cy
 $r5 = Pedir "Get" "$pre/prestamos/$($r4.Cuerpo.id)" $ana $null
 Write-Host ("HTTP {0}  (esperado 404)" -f $r5.Codigo)
 
-Write-Host "`n== 6. Evento tardío: se cancela por timeout y LUEGO llega InventarioReservado ==" -ForegroundColor Cyan
-function Evento($id, $nombre) { (Pedir "Post" "$pre/pruebas/prestamos/$id/eventos" $admin @{ evento = $nombre }).Cuerpo.resultado }
-Write-Host ("TimeoutInventario   -> {0}" -f (Evento $p.id "TimeoutInventario"))
-Write-Host ("InventarioReservado -> {0}  (esperado LIBERAR_RESERVA)" -f (Evento $p.id "InventarioReservado"))
-$final = Invoke-RestMethod -Uri "$pre/prestamos/$($p.id)" -Headers $ana
-Write-Host ("Estado final: {0}  motivo={1}  (no se reactivó)" -f $final.estado, $final.motivo)
-
-Write-Host "`n== 7. Historial del préstamo ==" -ForegroundColor Cyan
+Write-Host "`n== 6. Historial del préstamo ==" -ForegroundColor Cyan
 (Invoke-RestMethod -Uri "$pre/prestamos/$($p.id)/historial" -Headers $ana) |
     ForEach-Object { Write-Host ("   {0} -> {1}  {2}" -f $_.estado_anterior, $_.estado_nuevo, $_.motivo) }
 
-Write-Host "`n== 8. Flujo feliz: solicitud, reserva confirmada, entrega ==" -ForegroundColor Cyan
-$r8 = Solicitar $ana "demo-$sufijo-b" 4 12
-Write-Host ("Solicitud ({0}) -> {1}" -f $r8.Codigo, $r8.Cuerpo.estado)
-if ($r8.Cuerpo.estado -eq "PENDIENTE_INVENTARIO") {
-    Write-Host ("InventarioReservado -> {0}" -f (Evento $r8.Cuerpo.id "InventarioReservado"))
-    Write-Host ("SalidaConfirmada    -> {0}" -f (Evento $r8.Cuerpo.id "SalidaConfirmada"))
-}
+Write-Host "(El flujo completo por el broker -aprobación, cancelación, evento tardío- está en .\scripts\demo-flujo.ps1)" -ForegroundColor DarkGray
 Write-Host "`nListo." -ForegroundColor Green
