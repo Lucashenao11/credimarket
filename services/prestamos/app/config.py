@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     jwt_issuer: str = "credimarket-clientes"
     jwt_audience: str = "credimarket"
 
+    rabbitmq_url: str = ""  # vacío = sin broker (pruebas automáticas)
+
     clientes_url: str = "http://clientes:8000"
     productos_url: str = "http://productos:8000"
     http_timeout_segundos: float = 3.0

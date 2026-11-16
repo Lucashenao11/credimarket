@@ -15,6 +15,8 @@ class Settings(BaseSettings):
     reserva_ttl_segundos: int = 1800
     vencimiento_intervalo_segundos: int = 10  # cada cuánto se revisan las reservas vencidas
 
+    rabbitmq_url: str = ""  # vacío = sin broker (pruebas automáticas)
+
     demo_datos: bool = False  # siembra existencias de ejemplo
 
     @property

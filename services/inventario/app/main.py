@@ -1,10 +1,11 @@
 import logging
+import threading
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from . import vencimiento
+from . import consumidor, mensajeria, vencimiento
 from .config import settings
 from .db import Base, SessionLocal, db_disponible, engine
 from .routers import inventario
@@ -19,6 +20,10 @@ async def lifespan(app: FastAPI):
     with SessionLocal() as db:
         sembrar_demo(db)
     detener = vencimiento.iniciar()
+    if settings.rabbitmq_url:  # sin URL (pruebas automáticas) no se arrancan los hilos
+        mensajeria.Publicador(settings.rabbitmq_url, detener).start()
+        mensajeria.Consumidor(settings.rabbitmq_url, mensajeria.COLA_INVENTARIO,
+                              consumidor.manejar_comando, detener).start()
     yield
     detener.set()
 

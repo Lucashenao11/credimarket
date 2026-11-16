@@ -1,4 +1,5 @@
 import logging
+import threading
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
@@ -7,6 +8,7 @@ from fastapi.responses import JSONResponse
 
 from .config import settings
 from .db import Base, db_disponible, engine
+from . import consumidor, mensajeria, timeouts
 from .riesgo import ModeloRiesgo
 from .routers import modelo, prestamos
 
@@ -24,7 +26,14 @@ async def lifespan(app: FastAPI):
     except Exception:
         # El servicio arranca igual; /ready dirá que no está listo y las solicitudes darán 503
         log.exception("No se pudo cargar el modelo desde %s", settings.model_registry_dir)
+    detener = threading.Event()
+    if settings.rabbitmq_url:  # sin URL (pruebas automáticas) no se arrancan los hilos
+        mensajeria.Publicador(settings.rabbitmq_url, detener).start()
+        mensajeria.Consumidor(settings.rabbitmq_url, mensajeria.COLA_PRESTAMOS,
+                              consumidor.manejar_evento, detener).start()
+        timeouts.iniciar(detener)
     yield
+    detener.set()
 
 
 app = FastAPI(title="CrediMarket - prestamos", lifespan=lifespan)

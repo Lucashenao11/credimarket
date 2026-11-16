@@ -74,6 +74,26 @@ def historial(prestamo_id: str, db: Session = Depends(get_db), usuario: dict = D
                       .order_by(HistorialEstado.id)).all()
 
 
+@router.post("/prestamos/{prestamo_id}/cancelar", response_model=PrestamoOut)
+def cancelar(prestamo_id: str, db: Session = Depends(get_db), usuario: dict = Depends(usuario_actual)):
+    """Cancela antes de la entrega: el estado pasa a CANCELADA y se ordena liberar la reserva."""
+    _visible(usuario, db.get(Prestamo, prestamo_id))
+    if eventos.cancelar(db, prestamo_id) != "CANCELADA":
+        raise HTTPException(status.HTTP_409_CONFLICT, "El préstamo ya no se puede cancelar")
+    return db.get(Prestamo, prestamo_id, populate_existing=True)
+
+
+@router.post("/prestamos/{prestamo_id}/entregar", status_code=202,
+             dependencies=[Depends(requiere_rol("admin"))])
+def entregar(prestamo_id: str, db: Session = Depends(get_db)):
+    """Entrega simulada (solo administrador): ordena a Inventario confirmar la salida."""
+    if db.get(Prestamo, prestamo_id) is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Préstamo no encontrado")
+    if eventos.solicitar_entrega(db, prestamo_id) != "ENTREGA_SOLICITADA":
+        raise HTTPException(status.HTTP_409_CONFLICT, "Solo un préstamo APROBADO se puede entregar")
+    return {"resultado": "ENTREGA_SOLICITADA"}
+
+
 @router.post("/pruebas/prestamos/{prestamo_id}/eventos", dependencies=[Depends(requiere_rol("admin"))])
 def simular_evento(prestamo_id: str, e: EventoPrueba, db: Session = Depends(get_db)):
     """TEMPORAL: simula lo que Inventario responderá por RabbitMQ. Se elimina el martes."""
