@@ -1,0 +1,9 @@
+# Mismas versiones que services/prestamos/requirements.txt (contrato 4.3): el pipeline
+# se serializa aquí y se deserializa allá; versiones distintas pueden cambiar las predicciones.
+scikit-learn==1.5.2
+pandas==2.2.3
+numpy==2.1.3
+joblib==1.4.2
+# Igual a la versión del servidor (infra/mlflow/Dockerfile).
+mlflow==2.17.2
+pytest==8.3.3  # misma versión que Préstamos
