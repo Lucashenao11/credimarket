@@ -63,6 +63,18 @@ def test_mismo_prestamo_dos_veces(bodega):
     assert _contar(bodega, Reserva) == 1
 
 
+def test_mismo_prestamo_dos_veces_con_la_ultima_unidad(bodega):
+    """El mensaje repetido llega cuando ya no queda stock: debe decir YA_PROCESADA, no INSUFICIENTE.
+
+    Si respondiera INSUFICIENTE, el consumidor publicaría InventarioInsuficiente para un
+    préstamo que sí tiene su reserva.
+    """
+    assert reservar(bodega, "P-1", producto_id=2, cantidad=1) == "RESERVADA"
+    assert reservar(bodega, "P-1", producto_id=2, cantidad=1) == "YA_PROCESADA"
+    assert _stock(bodega, 2) == (0, 1)
+    assert _contar(bodega, Reserva) == 1
+
+
 # ---------------- liberar ----------------
 
 def test_liberar_devuelve_unidades(bodega):

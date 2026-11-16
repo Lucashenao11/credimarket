@@ -49,8 +49,6 @@ def registrar_entrada(db: Session, producto_id: int, cantidad: int) -> Existenci
 def reservar(db: Session, prestamo_id: str, producto_id: int, cantidad: int) -> str:
     """Aparta unidades para un préstamo. Devuelve "RESERVADA", "INSUFICIENTE" o "YA_PROCESADA".
 
-    TODO(Lucas): escribe esta función (unas 15 líneas). La variable vence_en ya está calculada.
-
     Requisitos:
       1. Si hay unidades suficientes: moverlas de `disponible` a `reservado`, crear la Reserva
          (estado "ACTIVA", con vence_en) y un Movimiento de tipo "RESERVA". Devolver "RESERVADA".
@@ -69,7 +67,7 @@ def reservar(db: Session, prestamo_id: str, producto_id: int, cantidad: int) -> 
             )
         Para restar en la base usa la columna misma: Existencia.disponible - cantidad
       - resultado.rowcount dice cuántas filas modificó el UPDATE: 1 si reservó, 0 si no.
-      - Si rowcount es 0: db.rollback() y devolver "INSUFICIENTE".
+      - Si rowcount es 0: rollback, y devolver YA_PROCESADA si el préstamo ya tiene reserva, o INSUFICIENTE si no.
       - Reserva(...) y Movimiento(...) se crean con argumentos con nombre (mira models.py).
       - Si la Reserva repite el prestamo_id, db.commit() lanza IntegrityError (UNIQUE).
         Ojo: el rollback deshace TODO lo de esta transacción, incluido el UPDATE de existencias.
@@ -89,6 +87,11 @@ def reservar(db: Session, prestamo_id: str, producto_id: int, cantidad: int) -> 
 
     if resultado.rowcount == 0:
         db.rollback()
+        ya_reservado = db.scalar(
+            select(Reserva.id).where(Reserva.prestamo_id == prestamo_id)
+        )
+        if ya_reservado is not None:
+            return "YA_PROCESADA"
         return "INSUFICIENTE"
 
     db.add(
@@ -133,8 +136,6 @@ def liberar(
     Devuelve "LIBERADA" (o el estado_final que se pida), "NO_EXISTE" o "YA_FINALIZADA".
     estado_final es "LIBERADA" para una cancelación y "VENCIDA" cuando se usa desde
     vencer_reservas. El tipo de Movimiento es "LIBERACION" o "VENCIMIENTO", respectivamente.
-
-    TODO(Lucas): escribe esta función (unas 15 líneas).
 
     Requisitos:
       1. Si no hay reserva para ese prestamo_id: devolver "NO_EXISTE".
@@ -183,7 +184,7 @@ def liberar(
             prestamo_id=reserva.prestamo_id,
         )
     )
-    
+
     db.commit()
     return estado_final
 

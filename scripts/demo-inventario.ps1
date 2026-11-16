@@ -62,5 +62,6 @@ Write-Host "Reservar $p -> $(Reservar $p $producto 1)   |   $(Stock $producto)"
 $ttl = [int]$envv["RESERVA_TTL_SEGUNDOS"]
 Write-Host "Esperando $($ttl + 15) segundos a que venza (RESERVA_TTL_SEGUNDOS=$ttl)..."
 Start-Sleep -Seconds ($ttl + 15)
-$estado = (Invoke-RestMethod -Uri "$inv/reservas" -Headers $H | Where-Object { $_.prestamo_id -eq $p }).estado
+$todas = Invoke-RestMethod -Uri "$inv/reservas" -Headers $H
+$estado = ($todas | Where-Object { $_.prestamo_id -eq $p }).estado
 Write-Host "Estado de la reserva: $estado (esperado VENCIDA)   |   $(Stock $producto)" -ForegroundColor Green
