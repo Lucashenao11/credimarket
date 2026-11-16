@@ -1,0 +1,6 @@
+{
+  "probabilidad_incumplimiento": 0.3635036231910223,
+  "umbral": 0.2,
+  "decision": "RIESGO_ALTO",
+  "model_version": "v2"
+}

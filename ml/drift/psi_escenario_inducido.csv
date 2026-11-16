@@ -1,0 +1,13 @@
+variable,psi,nivel,ruido_p95,alerta,media_referencia,media_actual,faltantes_referencia,faltantes_actual
+score,0.2783,significativo,0.086,True,0.3056,0.3888,0.0,0.0
+tipo_empleo,0.2007,moderado,0.052,True,,,0.0079,0.01
+ingresos_mensuales_cop,0.1661,moderado,0.093,True,4867251.9444,3788615.0,0.0,0.0
+antiguedad_laboral_meses,0.0908,estable,0.1051,False,37.3984,39.3869,0.0079,0.005
+monto_solicitado_cop,0.0794,estable,0.0813,False,3991402.2222,3654185.0,0.0,0.0
+meses_historial_crediticio,0.0591,estable,0.0962,False,56.492,56.3819,0.0079,0.005
+plazo_meses,0.0551,estable,0.0465,False,19.8217,20.43,0.0,0.0
+porcentaje_pago_puntual,0.0465,estable,0.1015,False,83.2464,84.4506,0.2043,0.215
+obligaciones_mensuales_cop,0.0373,estable,0.0883,False,1384786.6667,1357315.0,0.0,0.0
+cuota_estimada_cop,0.0212,estable,0.0913,False,308728.3415,285812.6904,0.0,0.0
+creditos_previos,0.0109,estable,0.0513,False,2.3699,2.355,0.0,0.0
+atrasos_previos_30d,0.0105,estable,0.0276,False,0.7738,0.985,0.0,0.0

@@ -15,7 +15,7 @@ import pandas as pd
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.preprocessing import FunctionTransformer, OneHotEncoder, StandardScaler
 
 RAIZ = Path(__file__).resolve().parents[2]
 DIR_ML = RAIZ / "ml"
@@ -71,7 +71,11 @@ def cargar_particiones() -> dict[str, pd.DataFrame]:
     return {p: g.drop(columns="particion").reset_index(drop=True) for p, g in df.groupby("particion")}
 
 
-def construir_preprocesador(escalar: bool = True) -> ColumnTransformer:
+DINERO = ["ingresos_mensuales_cop", "obligaciones_mensuales_cop", "monto_solicitado_cop",
+          "cuota_estimada_cop"]
+
+
+def construir_preprocesador(escalar: bool = True, log_dinero: bool = False) -> ColumnTransformer:
     """Imputación, codificación y escalado. Se ajusta SOLO con entrenamiento (dentro del Pipeline).
 
     Numéricas: mediana + indicador de faltante. El indicador importa sobre todo en
@@ -82,7 +86,20 @@ def construir_preprocesador(escalar: bool = True) -> ColumnTransformer:
     marcador de faltante. El primero cubre NaN y el segundo None; ambos llevan a la categoría
     explícita "desconocido". Así la API (que puede pasar None) y la solicitud real (NaN) dan la
     misma probabilidad. handle_unknown="ignore": una categoría nunca vista no rompe la predicción.
+
+    log_dinero: aplica log1p a las columnas en COP (muy asimétricas). Para un modelo lineal,
+    log(a) - log(b) = log(a/b): puede aprender razones como obligaciones/ingresos sin que Préstamos
+    tenga que construir columnas nuevas. np.log1p es de numpy: el joblib no depende de este módulo.
     """
+    transformadores = []
+    numericas = NUM
+    if log_dinero:
+        numericas = [c for c in NUM if c not in DINERO]
+        pasos_dinero = [("imputar", SimpleImputer(strategy="median")),
+                        ("log", FunctionTransformer(np.log1p, feature_names_out="one-to-one"))]
+        if escalar:
+            pasos_dinero.append(("escalar", StandardScaler()))
+        transformadores.append(("dinero", Pipeline(pasos_dinero), DINERO))
     pasos_num = [("imputar", SimpleImputer(strategy="median", add_indicator=True))]
     if escalar:
         pasos_num.append(("escalar", StandardScaler()))
@@ -93,7 +110,7 @@ def construir_preprocesador(escalar: bool = True) -> ColumnTransformer:
                                        fill_value=CATEGORIA_FALTANTE)),
         ("onehot", OneHotEncoder(handle_unknown="ignore", sparse_output=False)),
     ])
-    return ColumnTransformer([
-        ("num", Pipeline(pasos_num), NUM),
+    return ColumnTransformer(transformadores + [
+        ("num", Pipeline(pasos_num), numericas),
         ("cat", categorica, CAT),
     ], remainder="drop", verbose_feature_names_out=True)

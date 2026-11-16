@@ -1,0 +1,42 @@
+{
+  "congelado_en": "2026-11-16T23:00:31+00:00",
+  "candidato": "logistica_log_c1",
+  "algoritmo": "logistic_regression",
+  "run_id": "85efdae3d30f4c83bdfea56e49895c96",
+  "tanda": "20261116T175459",
+  "pipeline_sha256": "4103c6f7d45fb6fc1cf60fed2f959716b74f2838a59691e9c1709878df1ddfe4",
+  "umbral": 0.25,
+  "umbral_teorico": 0.25,
+  "costo_fn": 3.0,
+  "costo_fp": 1.0,
+  "criterio_sha256": "88b3e2961167d072c94911ff8a58abc5157508f13f0c2852e1a35395c175fb66",
+  "traza_seleccion": [
+    "1. Mejor AP en validación: 0.5098. Dentro de 0.005 quedan: logistica_log_c1 (0.5098), logistica_log_balanceada (0.5085), gradient_boosting (0.5091)",
+    "2. Desempate por Brier (mejor 0.1901, margen 0.002): quedan logistica_log_c1 (0.1901)"
+  ],
+  "validacion": {
+    "umbral": 0.25,
+    "precision": 0.4038876889848812,
+    "recall": 0.7643051771117166,
+    "f1": 0.5284974093264249,
+    "roc_auc": 0.6930197146978682,
+    "average_precision": 0.5098393213065451,
+    "brier": 0.19014027786895119,
+    "tasa_rechazo": 0.57875,
+    "costo_por_solicitud": 0.56125,
+    "tn": 838,
+    "fp": 828,
+    "fn": 173,
+    "tp": 561,
+    "matriz_confusion": [
+      [
+        838,
+        828
+      ],
+      [
+        173,
+        561
+      ]
+    ]
+  }
+}
