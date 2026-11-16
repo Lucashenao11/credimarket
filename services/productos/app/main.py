@@ -1,25 +1,32 @@
+import logging
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import settings
-from .db import db_disponible
+from .db import Base, SessionLocal, db_disponible, engine
+from .routers import productos
+from .seed import sembrar_demo
 
-app = FastAPI(title=f"CrediMarket - {settings.service_name}")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.cors_origins_list,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    Base.metadata.create_all(engine)
+    with SessionLocal() as db:
+        sembrar_demo(db)
+    yield
+
+
+app = FastAPI(title="CrediMarket - productos", lifespan=lifespan)
+app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins_list,
+                   allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
+app.include_router(productos.router)
 
 
 @app.get("/health")
 def health():
-    """El proceso responde. Informa, sin fallar, si la base de datos es alcanzable."""
-    return {
-        "status": "ok",
-        "service": settings.service_name,
-        "database": "ok" if db_disponible() else "no disponible",
-    }
+    return {"status": "ok", "service": settings.service_name,
+            "database": "ok" if db_disponible() else "no disponible"}
