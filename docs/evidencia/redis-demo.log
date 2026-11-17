@@ -1,0 +1,67 @@
+Evidencia de caché Redis en Productos — 2026-11-16T23:50:15+00:00
+
+0. Productos con TTL de 8 s para ver la expiración en vivo
+  $ CACHE_TTL_SEGUNDOS=8 docker compose up -d --no-deps --force-recreate productos
+  Producto de prueba creado: id 9
+
+1. MISS: primera consulta (no está en Redis; se lee de PostgreSQL y se guarda con TTL)
+  Redis: EXISTS productos:v1:9 = 0
+  GET /productos/9 -> 200  X-Cache: MISS  precio=1000000  version=1     3.2 ms 
+  Redis: EXISTS productos:v1:9 = 1, TTL = 8 s
+
+2. HIT: segunda consulta (se responde desde Redis)
+  GET /productos/9 -> 200  X-Cache: HIT   precio=1000000  version=1     1.2 ms 
+
+3. EXPIRACIÓN: se esperan 9 s sin tocar el producto
+  Redis: EXISTS productos:v1:9 = 0
+  GET /productos/9 -> 200  X-Cache: MISS  precio=1000000  version=1     3.2 ms 
+
+4. INVALIDACIÓN (prueba 9): cambio de precio con el producto en caché
+  GET /productos/9 -> 200  X-Cache: HIT   precio=1000000  version=1     1.1 ms 
+  Redis: EXISTS productos:v1:9 = 1, TTL = 8 s
+  PUT /productos/9 precio_cop=1250000 -> 200, version 2
+  Redis: EXISTS productos:v1:9 = 0
+  GET /productos/9 -> 200  X-Cache: MISS  precio=1250000  version=2     1.8 ms <- precio nuevo, no el viejo
+  GET /productos/9/cotizacion -> precio=1250000 version=2 (la cotización siempre lee PostgreSQL)
+
+5. CAÍDA DE REDIS: la API sigue respondiendo desde PostgreSQL
+  $ docker compose stop redis
+  GET /productos/9 -> 200  X-Cache: MISS  precio=1250000  version=2   103.1 ms <- primera tras la caída: paga el timeout de 100 ms
+  GET /productos/9 -> 200  X-Cache: MISS  precio=1250000  version=2     1.8 ms <- en pausa: ni intenta Redis
+  PUT /productos/9 precio_cop=1300000 con Redis caído -> 200 (invalidación fallida, registrada en el log)
+  /health -> database=ok, redis=no disponible
+
+6. RECUPERACIÓN: Redis vuelve y la caché se usa de nuevo, sin reiniciar Productos
+  $ docker compose start redis
+  Redis responde PONG (y recargó del disco la clave con el precio VIEJO); se espera a que venza la pausa de 5 s
+  Redis: GET productos:v1:9 -> precio en caché = 1250000
+  GET /productos/9 -> 200  X-Cache: MISS  precio=1300000  version=3     4.0 ms <- borra la invalidación pendiente y lee PostgreSQL
+  GET /productos/9 -> 200  X-Cache: HIT   precio=1300000  version=3     1.1 ms 
+
+7. Líneas de log de Productos (una por consulta, más los avisos de Redis)
+  2026-11-16 23:50:16,909 INFO productos.consulta: consulta producto_id=9 cache=MISS duracion_ms=1.95
+  2026-11-16 23:50:16,911 INFO productos.consulta: consulta producto_id=9 cache=HIT duracion_ms=0.14
+  2026-11-16 23:50:25,916 INFO productos.consulta: consulta producto_id=9 cache=MISS duracion_ms=1.35
+  2026-11-16 23:50:25,917 INFO productos.consulta: consulta producto_id=9 cache=HIT duracion_ms=0.12
+  2026-11-16 23:50:25,926 INFO productos.consulta: consulta producto_id=9 cache=MISS duracion_ms=0.78
+  2026-11-16 23:50:26,243 WARNING productos.cache: redis no disponible en get (TimeoutError: sin respuesta en 100 ms); se usa PostgreSQL y se pausa la caché 5 s
+  2026-11-16 23:50:26,244 INFO productos.consulta: consulta producto_id=9 cache=MISS duracion_ms=101.32
+  2026-11-16 23:50:26,246 INFO productos.consulta: consulta producto_id=9 cache=MISS duracion_ms=0.54
+  2026-11-16 23:50:26,350 WARNING productos.cache: redis no disponible en delete (TimeoutError: sin respuesta en 100 ms); se usa PostgreSQL y se pausa la caché 5 s
+  2026-11-16 23:50:26,350 ERROR productos.cache: no se pudo invalidar productos:v1:9: queda pendiente y se borrará cuando Redis vuelva (si Productos se reinicia antes, la cota es el TTL de 8 s)
+  2026-11-16 23:50:32,124 INFO productos.cache: invalidaciones pendientes aplicadas al volver Redis: [9]
+  2026-11-16 23:50:32,125 INFO productos.consulta: consulta producto_id=9 cache=MISS duracion_ms=1.83
+  2026-11-16 23:50:32,127 INFO productos.consulta: consulta producto_id=9 cache=HIT duracion_ms=0.13
+
+8. Limpieza: se desactiva el producto de prueba y Productos vuelve al TTL por defecto
+  $ docker compose up -d --no-deps --force-recreate productos
+  /health -> {'status': 'ok', 'service': 'productos', 'database': 'ok', 'redis': 'ok'}
+
+Resumen
+  miss_hit       OK
+  expiracion     OK
+  invalidacion   OK
+  caida          OK
+  recuperacion   OK
+
+EVIDENCIA REDIS COMPLETA
