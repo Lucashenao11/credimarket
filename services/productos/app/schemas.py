@@ -13,6 +13,8 @@ class ProductoUpdate(BaseModel):
     nombre: str | None = Field(default=None, min_length=2, max_length=120)
     categoria: str | None = Field(default=None, min_length=2, max_length=60)
     precio_cop: int | None = Field(default=None, gt=0)
+    # Permite REACTIVAR un producto desactivado (DELETE solo desactiva). Cuenta como cambio: sube la versión.
+    activo: bool | None = None
 
 
 class ProductoOut(BaseModel):

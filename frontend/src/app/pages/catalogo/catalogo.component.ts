@@ -13,8 +13,8 @@ import { CopPipe } from '../../shared/formato';
  * Catálogo.
  * - Todos: tarjetas con precio y versión; enlace al detalle.
  * - Cliente: botón "Solicitar a crédito".
- * - Administrador: crear, editar (PUT solo con los campos que cambian) y desactivar (DELETE = borrado lógico),
- *   con opción de ver los inactivos. Cada cambio sube la versión en el servidor; el aviso lo muestra.
+ * - Administrador: crear, editar (PUT solo con los campos que cambian), desactivar (DELETE = borrado lógico)
+ *   y reactivar (PUT activo = true), con opción de ver los inactivos. Cada cambio sube la versión en el servidor; el aviso lo muestra.
  */
 @Component({
   selector: 'app-catalogo',
@@ -72,6 +72,13 @@ import { CopPipe } from '../../shared/formato';
           @if (auth.esCliente() && p.activo) {
             <a class="boton" [routerLink]="['/solicitar']" [queryParams]="{ producto: p.id }">Solicitar a crédito</a>
           }
+          @if (auth.esAdmin() && !p.activo) {
+            <div class="acciones">
+              <button type="button" class="link" (click)="editar(p)">Editar</button>
+              <button type="button" class="link" [disabled]="reactivando() === p.id" (click)="reactivar(p)">
+                {{ reactivando() === p.id ? 'Reactivando…' : 'Reactivar' }}</button>
+            </div>
+          }
           @if (auth.esAdmin() && p.activo) {
             <div class="acciones">
               <button type="button" class="link" (click)="editar(p)">Editar</button>
@@ -105,6 +112,7 @@ export class CatalogoComponent {
   guardando = signal(false);
   confirmando = signal<number | null>(null);
   desactivando = signal(false);
+  reactivando = signal<number | null>(null);
 
   form = inject(FormBuilder).nonNullable.group({
     nombre: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(120)]],
@@ -189,6 +197,22 @@ export class CatalogoComponent {
         this.cargar();
       },
       error: (e) => { this.desactivando.set(false); this.error.set(mensajeDeError(e)); },
+    });
+  }
+
+  /** PUT con activo = true: vuelve al catálogo y la versión sube (Préstamos verá la versión nueva). */
+  reactivar(p: Producto) {
+    if (this.reactivando() !== null) return;
+    this.reactivando.set(p.id);
+    this.error.set(null);
+    this.exito.set(null);
+    this.api.actualizarProducto(p.id, { activo: true }).subscribe({
+      next: (r) => {
+        this.reactivando.set(null);
+        this.exito.set(`"${r.nombre}" reactivado (versión ${p.version} → ${r.version}). Ya se puede solicitar.`);
+        this.cargar();
+      },
+      error: (e) => { this.reactivando.set(null); this.error.set(mensajeDeError(e)); },
     });
   }
 
