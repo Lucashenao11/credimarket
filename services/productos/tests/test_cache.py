@@ -133,3 +133,21 @@ def test_mientras_haya_pendientes_sin_borrar_no_se_lee_la_cache(redis_caido):
     redis_caido.connected = False
     cache.invalidar(1)
     assert cache.obtener(1) is None and cache.pendientes == {1}   # sigue caído: PostgreSQL
+
+
+def test_reactivar_sube_version_invalida_y_vuelve_al_catalogo(client, redis_falso):
+    pid = _crear(client)
+    client.delete(f"/productos/{pid}")                       # versión 2, inactivo
+    client.get(f"/productos/{pid}")                          # queda en caché como inactivo
+    r = client.put(f"/productos/{pid}", json={"activo": True})
+    assert r.status_code == 200 and r.json()["activo"] is True and r.json()["version"] == 3
+    assert not redis_falso.exists(clave(pid))                # invalidado después del commit
+    assert client.get(f"/productos/{pid}").json()["activo"] is True
+    assert pid in [p["id"] for p in client.get("/productos").json()]
+    assert client.get(f"/productos/{pid}/cotizacion").json()["activo"] is True
+
+
+def test_put_sin_cambios_reales_no_sube_version(client):
+    pid = _crear(client)
+    r = client.put(f"/productos/{pid}", json={"precio_cop": NUEVO["precio_cop"], "activo": True})
+    assert r.json()["version"] == 1

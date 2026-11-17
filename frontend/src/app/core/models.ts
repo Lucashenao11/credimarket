@@ -1,6 +1,7 @@
 export type Rol = 'cliente' | 'admin';
 
 export interface Producto { id: number; nombre: string; categoria: string; precio_cop: number; version: number; activo: boolean; }
+export interface ProductoIn { nombre: string; categoria: string; precio_cop: number; }
 
 export interface Cliente {
   cliente_id: string; nombre: string | null; email: string | null; activo: boolean;
@@ -29,4 +30,16 @@ export interface ModeloInfo {
   model_version: string; run_id: string | null; umbral: number; clase_positiva: number;
   features: { nombre: string; tipo: string }[]; metricas: Record<string, number> | null;
   dataset_sha256: string | null; promovido_en: string | null;
+  /** Promociones y rollbacks (de active.json). Opcional: solo si Préstamos lo expone. */
+  historial?: EntradaHistorialModelo[] | null;
 }
+export interface EntradaHistorialModelo { accion: string; model_version: string; desde: string | null; en: string; por: string; motivo: string; }
+
+/** Entrada de POST /riesgo/predict: las 11 variables del contrato 4.3. */
+export interface RiesgoIn {
+  ingresos_mensuales_cop: number; obligaciones_mensuales_cop: number; tipo_empleo: string | null;
+  antiguedad_laboral_meses: number | null; meses_historial_crediticio: number | null;
+  creditos_previos: number; atrasos_previos_30d: number; porcentaje_pago_puntual: number | null;
+  monto_solicitado_cop: number; plazo_meses: number; cuota_estimada_cop: number;
+}
+export interface RiesgoOut { probabilidad_incumplimiento: number; umbral: number; decision: string; model_version: string; }

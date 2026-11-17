@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 
 import { ConfigService } from './config.service';
 import {
-  Cliente, Existencia, Historial, Producto, ModeloInfo, Movimiento, Prestamo, ReporteImportacion, Reserva, SolicitudIn,
+  Cliente, Existencia, Historial, Producto, ProductoIn, ModeloInfo, Movimiento, Prestamo, ReporteImportacion, Reserva, RiesgoIn, RiesgoOut, SolicitudIn,
 } from './models';
 
 /** Todas las llamadas a los cuatro servicios, en un solo lugar. */
@@ -18,6 +18,17 @@ export class ApiService {
   productos(soloActivos = true): Observable<Producto[]> {
     return this.http.get<Producto[]>(`${this.u.productos}/productos`, { params: new HttpParams().set('solo_activos', soloActivos) });
   }
+  /** Respuesta completa: la cabecera X-Cache (HIT/MISS) dice si el dato vino de Redis. */
+  producto(id: number): Observable<HttpResponse<Producto>> {
+    return this.http.get<Producto>(`${this.u.productos}/productos/${id}`, { observe: 'response' });
+  }
+  crearProducto(p: ProductoIn) { return this.http.post<Producto>(`${this.u.productos}/productos`, p); }
+  /** Solo se envían los campos que cambian; el servidor sube la versión. */
+  actualizarProducto(id: number, cambios: Partial<ProductoIn> & { activo?: boolean }) {
+    return this.http.put<Producto>(`${this.u.productos}/productos/${id}`, cambios);
+  }
+  /** Borrado lógico: activo = false y la versión sube. */
+  desactivarProducto(id: number) { return this.http.delete<Producto>(`${this.u.productos}/productos/${id}`); }
 
   // ---- Clientes
   cliente(id: string) { return this.http.get<Cliente>(`${this.u.clientes}/clientes/${id}`); }
@@ -41,6 +52,8 @@ export class ApiService {
   cancelar(id: string) { return this.http.post<Prestamo>(`${this.u.prestamos}/prestamos/${id}/cancelar`, {}); }
   entregar(id: string) { return this.http.post<{ resultado: string }>(`${this.u.prestamos}/prestamos/${id}/entregar`, {}); }
   modeloInfo() { return this.http.get<ModeloInfo>(`${this.u.prestamos}/modelo/info`); }
+  /** Prueba el modelo activo con variables dadas (solo administrador). No crea préstamos. */
+  predecirRiesgo(datos: RiesgoIn) { return this.http.post<RiesgoOut>(`${this.u.prestamos}/riesgo/predict`, datos); }
 
   // ---- Inventario (solo administrador)
   existencias() { return this.http.get<Existencia[]>(`${this.u.inventario}/existencias`); }

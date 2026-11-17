@@ -61,4 +61,6 @@ class ModeloRiesgo:
         return {"model_version": self.version, "run_id": m.get("run_id"), "umbral": self.umbral,
                 "features": m["features"], "clase_positiva": m["clase_positiva"],
                 "metricas": m.get("metricas"), "dataset_sha256": m.get("dataset_sha256"),
-                "promovido_en": self.activo.get("promovido_en")}
+                "promovido_en": self.activo.get("promovido_en"),
+                # Promociones y rollbacks escritos por ml/scripts/promover.py (pantalla Modelo del admin)
+                "historial": self.activo.get("historial", [])}

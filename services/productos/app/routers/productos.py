@@ -67,7 +67,9 @@ def crear(datos: ProductoIn, db: Session = Depends(get_db)):
 def actualizar(producto_id: int, datos: ProductoUpdate, db: Session = Depends(get_db),
                cache: CacheProductos = Depends(get_cache)):
     producto = _o_404(db, producto_id)
-    cambios = datos.model_dump(exclude_unset=True)
+    # Solo lo que realmente cambia: reenviar el mismo valor no sube la versión ni invalida la caché
+    cambios = {k: v for k, v in datos.model_dump(exclude_unset=True).items()
+               if v is not None and getattr(producto, k) != v}
     if cambios:
         for campo, valor in cambios.items():
             setattr(producto, campo, valor)
