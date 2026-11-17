@@ -1,0 +1,25 @@
+Prueba 11 — 2026-11-16T23:27:00+00:00
+
+1. Estado inicial (active.json = v1)
+  /modelo/info -> v1 (run 85efdae3d30f4c83bdfea56e49895c96, umbral 0.25, promovido_en 2026-11-16T23:01:42+00:00)
+  /riesgo/predict(ejemplo de v1) -> p=0.417141 RIESGO_ALTO | esperado 0.417141  OK
+
+2. Promover v2
+$ /home/huanda/HDD1/Uni/Sebas/Proyecto/credimarket/ml/.venv/bin/python ml/scripts/promover.py promover v2 --por Juan David --motivo Prueba 11: promover el retador
+  promovido: v1 -> v2. Aplica con: docker compose restart prestamos
+$ docker compose restart prestamos
+  Container credimarket-prestamos-1 Restarting 
+   Container credimarket-prestamos-1 Started
+  /modelo/info -> v2 (run fa7a2a4cee3e45ccb2febd674340a826, umbral 0.2, promovido_en 2026-11-16T23:27:00+00:00)
+  /riesgo/predict(ejemplo de v2) -> p=0.363504 RIESGO_ALTO | esperado 0.363504  OK
+
+3. Rollback
+$ /home/huanda/HDD1/Uni/Sebas/Proyecto/credimarket/ml/.venv/bin/python ml/scripts/promover.py rollback --por Juan David --motivo Prueba 11: rollback; v2 no supera a v1 en validación
+  rollback: v2 -> v1. Aplica con: docker compose restart prestamos
+$ docker compose restart prestamos
+  Container credimarket-prestamos-1 Restarting 
+   Container credimarket-prestamos-1 Started
+  /modelo/info -> v1 (run 85efdae3d30f4c83bdfea56e49895c96, umbral 0.25, promovido_en 2026-11-16T23:27:03+00:00)
+  /riesgo/predict(ejemplo de v1) -> p=0.417141 RIESGO_ALTO | esperado 0.417141  OK
+
+PRUEBA 11 SUPERADA: v1 -> v2 -> v1

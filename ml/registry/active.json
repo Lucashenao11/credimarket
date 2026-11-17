@@ -1,7 +1,33 @@
 {
-  "model_version": "v0-basico",
-  "promovido_en": "2026-11-16T16:29:24.345686+00:00",
-  "promovido_por": "base",
-  "version_anterior": null,
-  "motivo": "Modelo base provisional"
+  "model_version": "v1",
+  "promovido_en": "2026-11-16T23:27:03+00:00",
+  "promovido_por": "Juan David",
+  "version_anterior": "v2",
+  "motivo": "Prueba 11: rollback; v2 no supera a v1 en validación",
+  "historial": [
+    {
+      "accion": "promovido",
+      "model_version": "v1",
+      "desde": "v0-basico",
+      "en": "2026-11-16T23:01:42+00:00",
+      "por": "Juan David",
+      "motivo": "Primera versión: regresión logística con log de montos, seleccionada por AP; umbral 0,25 por costos 3:1"
+    },
+    {
+      "accion": "promovido",
+      "model_version": "v2",
+      "desde": "v1",
+      "en": "2026-11-16T23:27:00+00:00",
+      "por": "Juan David",
+      "motivo": "Prueba 11: promover el retador"
+    },
+    {
+      "accion": "rollback",
+      "model_version": "v1",
+      "desde": "v2",
+      "en": "2026-11-16T23:27:03+00:00",
+      "por": "Juan David",
+      "motivo": "Prueba 11: rollback; v2 no supera a v1 en validación"
+    }
+  ]
 }

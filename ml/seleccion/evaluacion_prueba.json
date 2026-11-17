@@ -1,0 +1,32 @@
+{
+  "evaluado_en": "2026-11-16T23:00:48+00:00",
+  "run_id": "85efdae3d30f4c83bdfea56e49895c96",
+  "candidato": "logistica_log_c1",
+  "pipeline_sha256": "4103c6f7d45fb6fc1cf60fed2f959716b74f2838a59691e9c1709878df1ddfe4",
+  "n": 2400,
+  "prueba": {
+    "umbral": 0.25,
+    "precision": 0.39661515820456217,
+    "recall": 0.7353342428376535,
+    "f1": 0.5152963671128107,
+    "roc_auc": 0.6856767800600863,
+    "average_precision": 0.5111103025045549,
+    "brier": 0.19064224378020703,
+    "tasa_rechazo": 0.56625,
+    "costo_por_solicitud": 0.5841666666666666,
+    "tn": 847,
+    "fp": 820,
+    "fn": 194,
+    "tp": 539,
+    "matriz_confusion": [
+      [
+        847,
+        820
+      ],
+      [
+        194,
+        539
+      ]
+    ]
+  }
+}

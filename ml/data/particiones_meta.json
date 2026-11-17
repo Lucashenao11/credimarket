@@ -1,0 +1,32 @@
+{
+  "generado_en": "2026-11-16T22:21:59+00:00",
+  "dataset_version": "prestamos_entrenamiento.csv",
+  "dataset_sha256": "c6cdc437c3aecc9116bc8b978df421d5a7600634c1ad7d6f82e58222a2446ecd",
+  "particiones_sha256": "b6a0394eb4ae533ee306db5a2c1b28d933376b7f66f68b5296c4668541eb7b4c",
+  "estrategia": "train_test_split estratificado por incumplimiento_90d: 60/40 y luego 50/50 del 40",
+  "semilla": 42,
+  "tamanos": {
+    "entrenamiento": 7200,
+    "validacion": 2400,
+    "prueba": 2400
+  },
+  "features": [
+    "ingresos_mensuales_cop",
+    "obligaciones_mensuales_cop",
+    "tipo_empleo",
+    "antiguedad_laboral_meses",
+    "meses_historial_crediticio",
+    "creditos_previos",
+    "atrasos_previos_30d",
+    "porcentaje_pago_puntual",
+    "monto_solicitado_cop",
+    "plazo_meses",
+    "cuota_estimada_cop"
+  ],
+  "excluidas": {
+    "solicitud_id": "identificador",
+    "cliente_id": "identificador",
+    "tasa_mensual_simulada": "constante (0.018): varianza cero, no aporta información",
+    "incumplimiento_90d": "etiqueta"
+  }
+}

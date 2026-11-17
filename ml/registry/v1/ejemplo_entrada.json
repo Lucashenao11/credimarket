@@ -1,0 +1,13 @@
+{
+  "ingresos_mensuales_cop": 1753000,
+  "obligaciones_mensuales_cop": 825000,
+  "tipo_empleo": "dependiente",
+  "antiguedad_laboral_meses": 1.0,
+  "meses_historial_crediticio": 105.0,
+  "creditos_previos": 6,
+  "atrasos_previos_30d": 0,
+  "porcentaje_pago_puntual": 92.98,
+  "monto_solicitado_cop": 4484000,
+  "plazo_meses": 12,
+  "cuota_estimada_cop": 418814.46
+}

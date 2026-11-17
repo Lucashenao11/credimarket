@@ -1,0 +1,108 @@
+{
+  "model_version": "v2",
+  "run_id": "fa7a2a4cee3e45ccb2febd674340a826",
+  "mlflow_experimento": "credimarket-riesgo-incumplimiento",
+  "candidato": "gradient_boosting",
+  "algoritmo": "hist_gradient_boosting",
+  "rol": "retador",
+  "creado_en": "2026-11-16T23:18:40+00:00",
+  "git_commit": "238077a3a84e2f459f56f4d78b80b064d19af585",
+  "dataset_version": "prestamos_entrenamiento.csv",
+  "dataset_sha256": "c6cdc437c3aecc9116bc8b978df421d5a7600634c1ad7d6f82e58222a2446ecd",
+  "particiones_sha256": "b6a0394eb4ae533ee306db5a2c1b28d933376b7f66f68b5296c4668541eb7b4c",
+  "particion": "train_test_split estratificado por incumplimiento_90d: 60/40 y luego 50/50 del 40, semilla 42",
+  "features": [
+    {
+      "nombre": "ingresos_mensuales_cop",
+      "tipo": "float"
+    },
+    {
+      "nombre": "obligaciones_mensuales_cop",
+      "tipo": "float"
+    },
+    {
+      "nombre": "tipo_empleo",
+      "tipo": "str"
+    },
+    {
+      "nombre": "antiguedad_laboral_meses",
+      "tipo": "float"
+    },
+    {
+      "nombre": "meses_historial_crediticio",
+      "tipo": "float"
+    },
+    {
+      "nombre": "creditos_previos",
+      "tipo": "int"
+    },
+    {
+      "nombre": "atrasos_previos_30d",
+      "tipo": "int"
+    },
+    {
+      "nombre": "porcentaje_pago_puntual",
+      "tipo": "float"
+    },
+    {
+      "nombre": "monto_solicitado_cop",
+      "tipo": "float"
+    },
+    {
+      "nombre": "plazo_meses",
+      "tipo": "int"
+    },
+    {
+      "nombre": "cuota_estimada_cop",
+      "tipo": "float"
+    }
+  ],
+  "excluidas": {
+    "solicitud_id": "identificador",
+    "cliente_id": "identificador",
+    "tasa_mensual_simulada": "constante (0.018): varianza cero, no aporta información",
+    "incumplimiento_90d": "etiqueta"
+  },
+  "clase_positiva": 1,
+  "clase_positiva_significado": "incumplimiento a 90 días",
+  "salida": "pipeline.predict_proba(df)[:, 1] = probabilidad de incumplimiento",
+  "umbral": 0.2,
+  "umbral_criterio": {
+    "costo_fn": 3.0,
+    "costo_fp": 1.0,
+    "elegido_en": "validacion",
+    "congelado_en": "2026-11-16T23:18:39+00:00"
+  },
+  "metricas": {
+    "validacion_average_precision": 0.5091,
+    "validacion_roc_auc": 0.6819,
+    "validacion_brier": 0.1926,
+    "validacion_precision": 0.3782,
+    "validacion_recall": 0.797,
+    "validacion_f1": 0.5129,
+    "validacion_tasa_rechazo": 0.6446,
+    "validacion_costo_por_solicitud": 0.5871
+  },
+  "metricas_prueba_nota": "Sin métricas de prueba: la partición de prueba se usó una sola vez, para el modelo seleccionado (v1).",
+  "matrices_confusion": {
+    "validacion": [
+      [
+        704,
+        962
+      ],
+      [
+        149,
+        585
+      ]
+    ],
+    "prueba": null,
+    "formato": "[[tn, fp], [fn, tp]] con el umbral del manifiesto"
+  },
+  "dependencias": {
+    "scikit-learn": "1.5.2",
+    "pandas": "2.2.3",
+    "numpy": "2.1.3",
+    "joblib": "1.4.2"
+  },
+  "artefacto_sha256": "8045e59be4c8b9e3d9cd2cb546585b52e356f36ebf09c439c0c4416dbdbc8364"
+}

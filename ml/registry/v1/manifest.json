@@ -1,0 +1,123 @@
+{
+  "model_version": "v1",
+  "run_id": "85efdae3d30f4c83bdfea56e49895c96",
+  "mlflow_experimento": "credimarket-riesgo-incumplimiento",
+  "candidato": "logistica_log_c1",
+  "algoritmo": "logistic_regression",
+  "creado_en": "2026-11-16T23:01:41+00:00",
+  "git_commit": "238077a3a84e2f459f56f4d78b80b064d19af585",
+  "dataset_version": "prestamos_entrenamiento.csv",
+  "dataset_sha256": "c6cdc437c3aecc9116bc8b978df421d5a7600634c1ad7d6f82e58222a2446ecd",
+  "particiones_sha256": "b6a0394eb4ae533ee306db5a2c1b28d933376b7f66f68b5296c4668541eb7b4c",
+  "particion": "train_test_split estratificado por incumplimiento_90d: 60/40 y luego 50/50 del 40, semilla 42",
+  "features": [
+    {
+      "nombre": "ingresos_mensuales_cop",
+      "tipo": "float"
+    },
+    {
+      "nombre": "obligaciones_mensuales_cop",
+      "tipo": "float"
+    },
+    {
+      "nombre": "tipo_empleo",
+      "tipo": "str"
+    },
+    {
+      "nombre": "antiguedad_laboral_meses",
+      "tipo": "float"
+    },
+    {
+      "nombre": "meses_historial_crediticio",
+      "tipo": "float"
+    },
+    {
+      "nombre": "creditos_previos",
+      "tipo": "int"
+    },
+    {
+      "nombre": "atrasos_previos_30d",
+      "tipo": "int"
+    },
+    {
+      "nombre": "porcentaje_pago_puntual",
+      "tipo": "float"
+    },
+    {
+      "nombre": "monto_solicitado_cop",
+      "tipo": "float"
+    },
+    {
+      "nombre": "plazo_meses",
+      "tipo": "int"
+    },
+    {
+      "nombre": "cuota_estimada_cop",
+      "tipo": "float"
+    }
+  ],
+  "excluidas": {
+    "solicitud_id": "identificador",
+    "cliente_id": "identificador",
+    "tasa_mensual_simulada": "constante (0.018): varianza cero, no aporta información",
+    "incumplimiento_90d": "etiqueta"
+  },
+  "clase_positiva": 1,
+  "clase_positiva_significado": "incumplimiento a 90 días",
+  "salida": "pipeline.predict_proba(df)[:, 1] = probabilidad de incumplimiento",
+  "umbral": 0.25,
+  "umbral_criterio": {
+    "costo_fn": 3.0,
+    "costo_fp": 1.0,
+    "elegido_en": "validacion",
+    "congelado_en": "2026-11-16T23:00:31+00:00"
+  },
+  "metricas": {
+    "validacion_average_precision": 0.5098,
+    "validacion_roc_auc": 0.693,
+    "validacion_brier": 0.1901,
+    "validacion_precision": 0.4039,
+    "validacion_recall": 0.7643,
+    "validacion_f1": 0.5285,
+    "validacion_tasa_rechazo": 0.5787,
+    "validacion_costo_por_solicitud": 0.5613,
+    "prueba_average_precision": 0.5111,
+    "prueba_roc_auc": 0.6857,
+    "prueba_brier": 0.1906,
+    "prueba_precision": 0.3966,
+    "prueba_recall": 0.7353,
+    "prueba_f1": 0.5153,
+    "prueba_tasa_rechazo": 0.5663,
+    "prueba_costo_por_solicitud": 0.5842
+  },
+  "matrices_confusion": {
+    "validacion": [
+      [
+        838,
+        828
+      ],
+      [
+        173,
+        561
+      ]
+    ],
+    "prueba": [
+      [
+        847,
+        820
+      ],
+      [
+        194,
+        539
+      ]
+    ],
+    "formato": "[[tn, fp], [fn, tp]] con el umbral del manifiesto"
+  },
+  "dependencias": {
+    "scikit-learn": "1.5.2",
+    "pandas": "2.2.3",
+    "numpy": "2.1.3",
+    "joblib": "1.4.2"
+  },
+  "artefacto_sha256": "4103c6f7d45fb6fc1cf60fed2f959716b74f2838a59691e9c1709878df1ddfe4"
+}
