@@ -94,6 +94,7 @@ services:
       SERVICE_NAME: productos
       DATABASE_URL: postgresql+psycopg://productos:${PRODUCTOS_DB_PASSWORD}@postgres:5432/productos
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      CACHE_TTL_SEGUNDOS: ${CACHE_TTL_SEGUNDOS:-300}
       JWT_PUBLIC_KEY_PATH: /run/secrets/jwt_public.pem
       DEMO_DATOS: ${DEMO_TOKENS_ENABLED}
       CORS_ORIGINS: ${CORS_ORIGINS}

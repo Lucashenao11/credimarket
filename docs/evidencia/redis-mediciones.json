@@ -1,0 +1,86 @@
+{
+  "fecha": "2026-11-16T23:51:24+00:00",
+  "peticiones_por_escenario": 1000,
+  "con_cache_hit": {
+    "n": 1000,
+    "p50_ms": 0.93,
+    "p95_ms": 1.08,
+    "p99_ms": 1.19,
+    "media_ms": 0.94
+  },
+  "sin_cache_miss": {
+    "n": 1000,
+    "p50_ms": 1.56,
+    "p95_ms": 1.74,
+    "p99_ms": 1.94,
+    "media_ms": 1.59
+  },
+  "cotizacion_solo_postgres": {
+    "n": 1000,
+    "p50_ms": 1.23,
+    "p95_ms": 1.38,
+    "p99_ms": 1.45,
+    "media_ms": 1.25
+  },
+  "servidor_hit": {
+    "n": 3021,
+    "p50_ms": 0.09,
+    "p95_ms": 0.12,
+    "p99_ms": 0.19,
+    "media_ms": 0.1
+  },
+  "servidor_miss": {
+    "n": 1030,
+    "p50_ms": 0.6,
+    "p95_ms": 0.72,
+    "p99_ms": 0.93,
+    "media_ms": 0.62
+  },
+  "carga_mixta": {
+    "lecturas": 2000,
+    "cambios_de_precio": 20,
+    "hit": 1971,
+    "miss": 29,
+    "tasa_aciertos": 0.9855,
+    "redis_keyspace_hits": 1971,
+    "redis_keyspace_misses": 29
+  },
+  "redis_memoria": {
+    "used_memory_human": "1.13M",
+    "used_memory_peak_human": "1.13M"
+  },
+  "docker_stats_durante_carga": [
+    {
+      "contenedor": "credimarket-productos-1",
+      "cpu": "63.69%",
+      "memoria": "74.34MiB / 31.22GiB"
+    },
+    {
+      "contenedor": "credimarket-postgres-1",
+      "cpu": "0.50%",
+      "memoria": "57.8MiB / 31.22GiB"
+    },
+    {
+      "contenedor": "credimarket-redis-1",
+      "cpu": "3.46%",
+      "memoria": "8.672MiB / 31.22GiB"
+    }
+  ],
+  "docker_stats_reposo": [
+    {
+      "contenedor": "credimarket-productos-1",
+      "cpu": "0.06%",
+      "memoria": "74.1MiB / 31.22GiB"
+    },
+    {
+      "contenedor": "credimarket-postgres-1",
+      "cpu": "0.06%",
+      "memoria": "58.28MiB / 31.22GiB"
+    },
+    {
+      "contenedor": "credimarket-redis-1",
+      "cpu": "0.27%",
+      "memoria": "8.672MiB / 31.22GiB"
+    }
+  ]
+}

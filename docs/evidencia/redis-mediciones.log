@@ -1,0 +1,25 @@
+Mediciones de la caché Redis — 2026-11-16T23:51:15+00:00
+Cliente: conexión HTTP persistente a localhost:8001, token de admin, 1000 peticiones por escenario.
+
+| Escenario | n | p50 (ms) | p95 (ms) | p99 (ms) | media (ms) |
+|---|---|---|---|---|---|
+| Con caché (HIT) | 1000 | 0.93 | 1.08 | 1.19 | 0.94 |
+| Sin caché (MISS forzado) | 1000 | 1.56 | 1.74 | 1.94 | 1.59 |
+| Cotización (solo PostgreSQL) | 1000 | 1.23 | 1.38 | 1.45 | 1.25 |
+
+Lado servidor (duracion_ms del log: lectura Redis o PostgreSQL + serialización, sin HTTP ni JWT):
+| Resultado | n | p50 (ms) | p95 (ms) | p99 (ms) |
+|---|---|---|---|---|
+| HIT | 3021 | 0.09 | 0.12 | 0.19 |
+| MISS | 1030 | 0.6 | 0.72 | 0.93 |
+
+Carga mixta: 2000 lecturas, 20 cambios de precio -> 1971 HIT / 29 MISS = tasa de aciertos 98.6% (Redis: keyspace_hits 1971, keyspace_misses 29)
+Memoria de Redis: 1.13M
+docker stats durante la carga mixta:
+  credimarket-productos-1          CPU  63.69%  memoria 74.34MiB / 31.22GiB
+  credimarket-postgres-1           CPU   0.50%  memoria 57.8MiB / 31.22GiB
+  credimarket-redis-1              CPU   3.46%  memoria 8.672MiB / 31.22GiB
+docker stats en reposo, al terminar:
+  credimarket-productos-1          CPU   0.06%  memoria 74.1MiB / 31.22GiB
+  credimarket-postgres-1           CPU   0.06%  memoria 58.28MiB / 31.22GiB
+  credimarket-redis-1              CPU   0.27%  memoria 8.672MiB / 31.22GiB

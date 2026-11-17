@@ -12,9 +12,11 @@ class Settings(BaseSettings):
 
     demo_datos: bool = False  # siembra productos de ejemplo
 
-    # TODO(compañero): Redis (REDIS_URL ya llega por docker-compose). Ver docs/guias/productos.md
-    # redis_url: str = ""
-    # cache_ttl_segundos: int = 300
+    # Redis (cache-aside). REDIS_URL llega por docker-compose. Ver docs/redis-desempeno.md
+    redis_url: str = ""
+    cache_ttl_segundos: int = 300        # cota de desactualización si una invalidación se pierde
+    redis_timeout_segundos: float = 0.1  # conexión y operación: Redis lento no debe frenar la API
+    redis_pausa_tras_fallo_segundos: float = 5.0
 
     @property
     def cors_origins_list(self) -> list[str]:
