@@ -6,6 +6,7 @@ export const routes: Routes = [
   { path: 'login', loadComponent: () => import('./pages/login/login.component').then((m) => m.LoginComponent) },
   { path: '', pathMatch: 'full', loadComponent: () => import('./pages/inicio.component').then((m) => m.InicioComponent), canActivate: [autenticado] },
   { path: 'catalogo', loadComponent: () => import('./pages/catalogo/catalogo.component').then((m) => m.CatalogoComponent), canActivate: [autenticado] },
+  { path: 'catalogo/:id', loadComponent: () => import('./pages/catalogo/producto-detalle.component').then((m) => m.ProductoDetalleComponent), canActivate: [autenticado] },
   { path: 'solicitar', loadComponent: () => import('./pages/solicitar/solicitar.component').then((m) => m.SolicitarComponent), canActivate: [autenticado, soloCliente] },
   { path: 'mis-prestamos', loadComponent: () => import('./pages/mis-prestamos/mis-prestamos.component').then((m) => m.MisPrestamosComponent), canActivate: [autenticado, soloCliente] },
   { path: 'perfil', loadComponent: () => import('./pages/perfil/perfil.component').then((m) => m.PerfilComponent), canActivate: [autenticado, soloCliente] },

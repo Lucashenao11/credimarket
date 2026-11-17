@@ -92,8 +92,14 @@ export class SolicitarComponent {
     this.api.productos().subscribe({
       next: (p) => {
         this.productos.set(p);
-        const pre = Number(this.ruta.snapshot.queryParamMap.get('producto'));
+        const q = this.ruta.snapshot.queryParamMap;
+        const pre = Number(q.get('producto'));
         if (pre && p.some((x) => x.id === pre)) this.form.patchValue({ producto_id: pre });
+        // Cantidad y plazo elegidos en el detalle del catálogo (solo si son válidos)
+        const cantidad = Number(q.get('cantidad'));
+        if (Number.isInteger(cantidad) && cantidad >= 1 && cantidad <= 5) this.form.patchValue({ cantidad });
+        const plazo = Number(q.get('plazo'));
+        if (this.plazos.includes(plazo)) this.form.patchValue({ plazo_meses: plazo });
       },
       error: (e) => this.errorCarga.set(mensajeDeError(e)),
     });

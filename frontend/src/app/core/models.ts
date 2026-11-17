@@ -1,6 +1,7 @@
 export type Rol = 'cliente' | 'admin';
 
 export interface Producto { id: number; nombre: string; categoria: string; precio_cop: number; version: number; activo: boolean; }
+export interface ProductoIn { nombre: string; categoria: string; precio_cop: number; }
 
 export interface Cliente {
   cliente_id: string; nombre: string | null; email: string | null; activo: boolean;
