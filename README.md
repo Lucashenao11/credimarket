@@ -65,6 +65,9 @@ Se crean al arrancar si `DEMO_TOKENS_ENABLED=true`. Las contraseñas están en t
 - [Guía de lectura: Inventario](docs/guias/inventario.md)
 - [Guía de lectura: Préstamos](docs/guias/prestamos.md)
 - [Guía de lectura: Productos](docs/guias/productos.md)
+- [Caché Redis: diseño, evidencia y mediciones](docs/redis-desempeno.md)
+- [Modelo de riesgo: informe de selección](ml/reporte_seleccion.md)
+- [Modelo de riesgo: datos (etapa A)](ml/reporte_datos.md) · [criterio de selección](ml/criterio_seleccion.md) · [drift (etapa F)](ml/reporte_drift.md)
 
 ## Demostración rápida
 
@@ -75,6 +78,40 @@ Se crean al arrancar si `DEMO_TOKENS_ENABLED=true`. Las contraseñas están en t
 .\scripts\aceptacion-roles.ps1     # roles y aislamiento entre clientes
 ```
 
+```bash
+python scripts/evidencia_redis.py demo     # caché: miss, hit, expiración, cambio de precio, caída de Redis (pruebas 8 y 9)
+ml/.venv/bin/python ml/scripts/prueba10.py # modelo exportado = POST /riesgo/predict (prueba 10)
+ml/.venv/bin/python ml/scripts/prueba11.py # promoción v1 → v2 y rollback a v1 (prueba 11)
+```
+En Windows: `python scripts\evidencia_redis.py demo` y `ml\.venv\Scripts\python ml\scripts\prueba10.py`. Preparación del entorno de ML en [Pruebas de aceptación](docs/aceptacion.md#preparación-para-811).
+
 Pruebas unitarias por servicio: `docker compose run --rm <servicio> pytest` (clientes, productos, prestamos, inventario).
 
 Frontend en desarrollo (recarga en caliente): `cd frontend && npm install && npx ng serve`. Las URLs de las APIs se leen de `frontend/public/config.json`.
+
+## Modelo de riesgo (MLOps)
+
+El modelo activo es **v1**: regresión logística con `log1p` en las variables en pesos, elegida por *average precision* en validación entre 8 candidatos de 4 algoritmos registrados en MLflow. Umbral 0,25 elegido en validación con costos ficticios (aprobar a quien incumple = 3, rechazar a quien paga = 1); la partición de prueba se usó una sola vez (AP 0,511, ROC-AUC 0,686). **v2** (gradient boosting) es el retador usado para demostrar promoción y rollback. Detalle en el [informe de selección](ml/reporte_seleccion.md).
+
+```
+ml/registry/
+├── active.json          versión activa + historial (solo lo escribe ml/scripts/promover.py)
+├── v0-basico/           modelo provisional inicial
+├── v1/                  pipeline.joblib, manifest.json, ejemplo_entrada.json, ejemplo_salida.json
+└── v2/
+```
+
+- **Préstamos carga el modelo al iniciar**, desde la versión de `active.json`, y verifica el SHA-256 del artefacto contra el manifiesto. Después de promover, o de un `git pull` que cambie `ml/registry/`: `docker compose restart prestamos`.
+- **Promover / rollback** (solo modifica `active.json`, valida el artefacto antes):
+  ```bash
+  python ml/scripts/promover.py estado
+  python ml/scripts/promover.py promover v2 --motivo "..." --por "Nombre"
+  python ml/scripts/promover.py rollback --motivo "..." --por "Nombre"
+  docker compose restart prestamos
+  ```
+- **Reentrenar desde cero** (necesita el entorno de ML con Python 3.11 y MLflow en `http://localhost:5000`): la secuencia de comandos está en el §12 del [informe de selección](ml/reporte_seleccion.md#12-cómo-reproducir).
+- En la aplicación, la pantalla **Modelo** (administrador) muestra la versión activa, el enlace al run de MLflow, las métricas, el historial de promociones, el uso por versión y una predicción manual.
+
+## Caché Redis en Productos
+
+`GET /productos/{id}` usa cache-aside (clave `productos:v1:{id}`, TTL 300 s, cabecera `X-Cache: HIT|MISS`); `PUT` y `DELETE` invalidan después del commit. **La cotización nunca usa la caché.** Si Redis cae, Productos responde desde PostgreSQL. Mediciones (p50 servidor: 0,09 ms HIT frente a 0,60 ms MISS; 98,6 % de aciertos) y los casos en que un dato puede estar desactualizado en [docs/redis-desempeno.md](docs/redis-desempeno.md).
