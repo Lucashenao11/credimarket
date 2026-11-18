@@ -33,6 +33,7 @@ a { color:var(--petroleo-2); }
 /* Superficies */
 .tarjeta { background:var(--superficie); border:1px solid var(--linea); border-radius:8px; padding:1.1rem 1.3rem; margin-bottom:1rem; box-shadow:0 1px 0 rgba(14,59,67,.04); }
 .estrecha { max-width:470px; }
+.login { width:100%; margin:8vh auto 0; }
 .ok-borde { border-color:var(--ok); border-left-width:5px; }
 
 /* Catálogo: tarjeta como etiqueta de precio */

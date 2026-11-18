@@ -11,7 +11,7 @@ import { AvisoComponent } from '../../shared/aviso.component';
   standalone: true,
   imports: [ReactiveFormsModule, AvisoComponent],
   template: `
-    <section class="tarjeta estrecha">
+    <section class="tarjeta estrecha login">
       <h1>Iniciar sesión</h1>
       <app-aviso [texto]="auth.aviso()" tipo="info" />
       <form [formGroup]="form" (ngSubmit)="entrar()">
