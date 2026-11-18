@@ -19,7 +19,7 @@ import { CopPipe, FechaPipe, MOTIVOS } from '../../../shared/formato';
     <button type="button" (click)="cargar()" [disabled]="cargando()">{{ cargando() ? 'Actualizando…' : 'Actualizar' }}</button>
     <div class="tabla-caja">
     <table>
-      <thead><tr><th>Creado</th><th>Cliente</th><th>Producto</th><th>Monto</th><th>Riesgo</th><th>Estado</th><th>Motivo</th><th></th></tr></thead>
+      <thead><tr><th>Creado</th><th>Cliente</th><th>Producto</th><th>Monto</th><th>Riesgo</th><th>Modelo</th><th>Estado</th><th>Motivo</th><th></th></tr></thead>
       <tbody>
         @for (p of lista(); track p.id) {
           <tr>
@@ -28,6 +28,7 @@ import { CopPipe, FechaPipe, MOTIVOS } from '../../../shared/formato';
             <td>{{ p.cantidad }} × #{{ p.producto_id }}</td>
             <td>{{ p.monto_cop | cop }}</td>
             <td>{{ p.probabilidad_incumplimiento == null ? '—' : (p.probabilidad_incumplimiento * 100).toFixed(1) + ' %' }}</td>
+            <td>{{ p.modelo_version ?? '—' }}</td>
             <td><app-estado [estado]="p.estado" /></td>
             <td>{{ p.motivo ? (motivos[p.motivo] || p.motivo) : '' }}</td>
             <td class="acciones">
@@ -39,7 +40,7 @@ import { CopPipe, FechaPipe, MOTIVOS } from '../../../shared/formato';
               }
             </td>
           </tr>
-        } @empty { <tr><td colspan="8" class="vacio">{{ cargando() ? 'Cargando…' : 'No hay préstamos.' }}</td></tr> }
+        } @empty { <tr><td colspan="9" class="vacio">{{ cargando() ? 'Cargando…' : 'No hay préstamos.' }}</td></tr> }
       </tbody>
     </table>
     </div>

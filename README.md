@@ -29,6 +29,13 @@ docker compose up --build
 
 `setup` genera, solo la primera vez, el archivo `.env` con contraseñas aleatorias y las llaves JWT en `secrets/`. Ninguno de los dos se sube al repositorio.
 
+## Detener, conservar datos y experimentos
+
+- `docker compose down` detiene todo y **conserva** los datos: PostgreSQL (`postgres_data`), RabbitMQ (`rabbitmq_data`) y los experimentos de MLflow (`mlflow_artifacts` para los artefactos y la base `mlflow` en PostgreSQL para ejecuciones, parámetros y métricas).
+- `docker compose down -v` **borra** esos volúmenes: sirve para repetir la demostración desde cero (se vuelven a sembrar los productos, las existencias y las cuentas de prueba), pero se pierden las ejecuciones de MLflow. El modelo servido no depende de ellas: vive en `ml/registry/`, que está en el repositorio.
+- `.env` y `secrets/` los crea `setup` y no se suben al repositorio. Si los borras, vuelve a ejecutar `setup`.
+- Si cambias `.env` o el código de un servicio: `docker compose up -d --build <servicio>`.
+
 ## Puertos
 
 | Componente | URL |
@@ -56,7 +63,9 @@ Se crean al arrancar si `DEMO_TOKENS_ENABLED=true`. Las contraseñas están en t
 ## Documentación
 
 - [Decisiones de arquitectura](docs/decisiones.md)
+- [Guía de demostración](docs/guia-demostracion.md)
 - [Arquitectura y diagramas](docs/arquitectura.md)
+- [Contratos REST y de mensajes](docs/contratos.md)
 - [Mensajería (RabbitMQ, outbox, inbox)](docs/mensajeria.md)
 - [Pruebas de aceptación](docs/aceptacion.md)
 - [Plan de equipo](docs/plan-equipo.md)
